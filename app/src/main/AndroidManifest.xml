@@ -33,6 +33,9 @@
 
     <!--         Add this permission to allow opening network sockets. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <!--
         Add this permission to check which network access properties (e.g.
