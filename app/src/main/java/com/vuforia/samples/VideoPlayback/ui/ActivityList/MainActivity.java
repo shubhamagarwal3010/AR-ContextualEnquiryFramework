@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.vuforia.samples.BackgroundTextureAccess.BackgroundTextureAccess;
 import com.vuforia.samples.VideoPlayback.R;
 import com.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback;
 
@@ -25,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        }
+
     }
 
     public void viewARImage(View view) {
@@ -32,16 +37,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void viewARVideo(View view) {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        }
-
         Intent intent = new Intent(MainActivity.this, VideoPlayback.class);
         startActivity(intent);
 
     }
 
-    public void viewARText(View view) {
-
+    public void viewAR3DModel(View view) {
+        Intent intent = new Intent(MainActivity.this, BackgroundTextureAccess.class);
+        startActivity(intent);
     }
 }

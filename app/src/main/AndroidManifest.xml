@@ -83,6 +83,11 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.vuforia.samples.BackgroundTextureAccess.BackgroundTextureAccess"
+            android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/SampleAppsTheme" />
     </application>
 
 </manifest>
