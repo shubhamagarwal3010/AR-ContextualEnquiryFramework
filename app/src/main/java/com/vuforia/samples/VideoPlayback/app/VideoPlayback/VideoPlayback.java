@@ -299,8 +299,7 @@ public class VideoPlayback extends Activity implements
             // this was currently playing:
             if (mVideoPlayerHelper[i].isPlayableOnTexture()) {
                 mSeekPosition[i] = mVideoPlayerHelper[i].getCurrentPosition();
-                mWasPlaying[i] = mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING ? true
-                        : false;
+                mWasPlaying[i] = mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING;
             }
 
             // We also need to release the resources used by the helper, though
