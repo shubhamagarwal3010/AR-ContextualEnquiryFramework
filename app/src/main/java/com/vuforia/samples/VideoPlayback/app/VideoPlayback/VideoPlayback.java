@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -45,9 +44,8 @@ import com.vuforia.samples.SampleApplication.utils.SampleApplicationGLView;
 import com.vuforia.samples.SampleApplication.utils.Texture;
 import com.vuforia.samples.VideoPlayback.R;
 import com.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayerHelper.MEDIA_STATE;
-import com.vuforia.samples.VideoPlayback.ui.SampleAppMenu.SampleAppMenu;
-import com.vuforia.samples.VideoPlayback.ui.SampleAppMenu.SampleAppMenuGroup;
-import com.vuforia.samples.VideoPlayback.ui.SampleAppMenu.SampleAppMenuInterface;
+import com.vuforia.samples.VideoTargetAndResourceRepository;
+import com.vuforia.samples.VideoTargetWithResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +56,9 @@ import java.util.Vector;
 public class VideoPlayback extends Activity implements
         SampleApplicationControl {
     private static final String LOGTAG = "VideoPlayback";
-    public List<String> VIDEO_TARGET_RESOURCES;
+    public List<VideoTargetWithResource> targetWithResources;
     // Movie for the Targets:
-    public static int NUM_TARGETS =0 ;
+    public static int NUM_TARGETS = 0;
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
     SampleApplicationSession vuforiaAppSession;
@@ -73,7 +71,6 @@ public class VideoPlayback extends Activity implements
     private VideoPlayerHelper mVideoPlayerHelper[] = null;
     private int mSeekPosition[] = null;
     private boolean mWasPlaying[] = null;
-    private String mMovieName[] = null;
     // A boolean to indicate whether we come from full screen:
     private boolean mReturningFromFullScreen = false;
     // Our OpenGL view:
@@ -89,11 +86,10 @@ public class VideoPlayback extends Activity implements
     // Alert Dialog used to display SDK errors
     private AlertDialog mErrorDialog;
 
-    public  VideoPlayback(){
-        VIDEO_TARGET_RESOURCES = new ArrayList<String>(){{
-            add("VideoPlayback/VuforiaSizzleReel_1.mp4");
-        }};
-        NUM_TARGETS= VIDEO_TARGET_RESOURCES.size();
+    public VideoPlayback() {
+        VideoTargetAndResourceRepository videoTargetAndResourceRepository = new VideoTargetAndResourceRepository();
+        targetWithResources = videoTargetAndResourceRepository.getVideoTargetsAndResoruces();
+        NUM_TARGETS = videoTargetAndResourceRepository.getTargetCount();
     }
 
     // Called when the activity first starts or the user navigates back
@@ -124,7 +120,6 @@ public class VideoPlayback extends Activity implements
         mVideoPlayerHelper = new VideoPlayerHelper[NUM_TARGETS];
         mSeekPosition = new int[NUM_TARGETS];
         mWasPlaying = new boolean[NUM_TARGETS];
-        mMovieName = new String[NUM_TARGETS];
 
         // Create the video player helper that handles the playback of the movie
         // for the targets:
@@ -132,10 +127,6 @@ public class VideoPlayback extends Activity implements
             mVideoPlayerHelper[i] = new VideoPlayerHelper();
             mVideoPlayerHelper[i].init();
             mVideoPlayerHelper[i].setActivity(this);
-        }
-
-        for(int i = 0; i< NUM_TARGETS; i++) {
-            mMovieName[i] = VIDEO_TARGET_RESOURCES.get(i);
         }
 
         // Set the double tap listener:
@@ -225,6 +216,8 @@ public class VideoPlayback extends Activity implements
     private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk(
                 "VideoPlayback/TextureTransparent.png", getAssets()));
+        mTextures.add(Texture.loadTextureFromApk(
+                "VideoPlayback/TextureTransparent.png", getAssets()));
     }
 
     // Called when the activity will start interacting with the user.
@@ -239,10 +232,10 @@ public class VideoPlayback extends Activity implements
         if (mRenderer != null) {
             for (int i = 0; i < NUM_TARGETS; i++) {
                 if (!mReturningFromFullScreen) {
-                    mRenderer.requestLoad(i, mMovieName[i], mSeekPosition[i],
+                    mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), mSeekPosition[i],
                             false);
                 } else {
-                    mRenderer.requestLoad(i, mMovieName[i], mSeekPosition[i],
+                    mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), mSeekPosition[i],
                             mWasPlaying[i]);
                 }
             }
@@ -266,7 +259,7 @@ public class VideoPlayback extends Activity implements
 
                 // Find the movie that was being played full screen
                 for (int i = 0; i < NUM_TARGETS; i++) {
-                    if (movieBeingPlayed.compareTo(mMovieName[i]) == 0) {
+                    if (movieBeingPlayed.compareTo(targetWithResources.get(i).getResource()) == 0) {
                         mSeekPosition[i] = data.getIntExtra(
                                 "currentSeekPosition", 0);
                         mWasPlaying[i] = false;
@@ -404,7 +397,7 @@ public class VideoPlayback extends Activity implements
         // tell the GL thread to load it once the surface has been created.
         for (int i = 0; i < NUM_TARGETS; i++) {
             mRenderer.setVideoPlayerHelper(i, mVideoPlayerHelper[i]);
-            mRenderer.requestLoad(i, mMovieName[i], 0, false);
+            mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), 0, false);
         }
 
         mGlView.setRenderer(mRenderer);
@@ -692,6 +685,14 @@ public class VideoPlayback extends Activity implements
         }
 
         return result;
+    }
+
+    public int getIndexOfTargetFromTargetName(String name){
+        for(int i=0; i<NUM_TARGETS ;i++){
+            if(targetWithResources.get(i).getTargetName().equals(name))
+                return i;
+        }
+        return -1;
     }
 
 }

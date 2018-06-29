@@ -90,10 +90,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
     private float videoQuadTextureCoords[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
             1.0f, 0.0f, 1.0f,};
     // This variable will hold the transformed coordinates (changes every frame)
-    private float videoQuadTextureCoordsTransformedStones[] = {0.0f, 0.0f,
-            1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
-    private float videoQuadTextureCoordsTransformedChips[] = {0.0f, 0.0f,
-            1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
+    private float videoQuadTextureCoordsPerTexture [][];
     private boolean mIsActive = false;
     private Matrix44F tappingProjectionMatrix = null;
     private float[][] mTexCoordTransformationMatrix = null;
@@ -112,7 +109,10 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
         mActivity = activity;
         vuforiaAppSession = session;
-
+        videoQuadTextureCoordsPerTexture = new float[VideoPlayback.NUM_TARGETS][];
+        for(int i=0;i<VideoPlayback.NUM_TARGETS ; i++){
+            videoQuadTextureCoordsPerTexture[i] = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
+        }
         // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
         mSampleAppRenderer = new SampleAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
@@ -484,8 +484,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
             // We store the modelview matrix to be used later by the tap
             // calculation
-            //TODO : Hardcode value until refactored to hashmap, later map it to the correct target
-            currentTarget = 0;
+            currentTarget =  mActivity.getIndexOfTargetFromTargetName(imageTarget.getName());
 
             modelViewMatrix[currentTarget] = Tool
                     .convertPose2GLMatrix(trackableResult.getPose());
@@ -584,14 +583,10 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 GLES20.glVertexAttribPointer(videoPlaybackVertexHandle, 3,
                         GLES20.GL_FLOAT, false, 0, quadVertices);
 
-                if (imageTarget.getName().compareTo("stones") == 0)
-                    GLES20.glVertexAttribPointer(videoPlaybackTexCoordHandle,
-                            2, GLES20.GL_FLOAT, false, 0,
-                            fillBuffer(videoQuadTextureCoordsTransformedStones));
-                else
-                    GLES20.glVertexAttribPointer(videoPlaybackTexCoordHandle,
-                            2, GLES20.GL_FLOAT, false, 0,
-                            fillBuffer(videoQuadTextureCoordsTransformedChips));
+                GLES20.glVertexAttribPointer(videoPlaybackTexCoordHandle,
+                        2, GLES20.GL_FLOAT, false, 0,
+                        fillBuffer(videoQuadTextureCoordsPerTexture[currentTarget]));
+
 
                 GLES20.glEnableVertexAttribArray(videoPlaybackVertexHandle);
                 GLES20.glEnableVertexAttribArray(videoPlaybackTexCoordHandle);
@@ -757,29 +752,29 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         float tempUVMultRes[];
 
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsTransformedStones[0],
-                videoQuadTextureCoordsTransformedStones[1],
+                videoQuadTextureCoordsPerTexture[target][0],
+                videoQuadTextureCoordsPerTexture[target][1],
                 videoQuadTextureCoords[0], videoQuadTextureCoords[1], mtx);
-        videoQuadTextureCoordsTransformedStones[0] = tempUVMultRes[0];
-        videoQuadTextureCoordsTransformedStones[1] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTexture[target][0] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTexture[target][1] = tempUVMultRes[1];
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsTransformedStones[2],
-                videoQuadTextureCoordsTransformedStones[3],
+                videoQuadTextureCoordsPerTexture[target][2],
+                videoQuadTextureCoordsPerTexture[target][3],
                 videoQuadTextureCoords[2], videoQuadTextureCoords[3], mtx);
-        videoQuadTextureCoordsTransformedStones[2] = tempUVMultRes[0];
-        videoQuadTextureCoordsTransformedStones[3] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTexture[target][2] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTexture[target][3] = tempUVMultRes[1];
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsTransformedStones[4],
-                videoQuadTextureCoordsTransformedStones[5],
+                videoQuadTextureCoordsPerTexture[target][4],
+                videoQuadTextureCoordsPerTexture[target][5],
                 videoQuadTextureCoords[4], videoQuadTextureCoords[5], mtx);
-        videoQuadTextureCoordsTransformedStones[4] = tempUVMultRes[0];
-        videoQuadTextureCoordsTransformedStones[5] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTexture[target][4] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTexture[target][5] = tempUVMultRes[1];
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsTransformedStones[6],
-                videoQuadTextureCoordsTransformedStones[7],
+                videoQuadTextureCoordsPerTexture[target][6],
+                videoQuadTextureCoordsPerTexture[target][7],
                 videoQuadTextureCoords[6], videoQuadTextureCoords[7], mtx);
-        videoQuadTextureCoordsTransformedStones[6] = tempUVMultRes[0];
-        videoQuadTextureCoordsTransformedStones[7] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTexture[target][6] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTexture[target][7] = tempUVMultRes[1];
     }
 
 
