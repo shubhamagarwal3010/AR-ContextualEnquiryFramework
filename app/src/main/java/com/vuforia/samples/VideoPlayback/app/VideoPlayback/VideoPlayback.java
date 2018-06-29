@@ -224,15 +224,7 @@ public class VideoPlayback extends Activity implements
     // use for rendering.
     private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk(
-                "VideoPlayback/VuforiaSizzleReel_1.png", getAssets()));
-        mTextures.add(Texture.loadTextureFromApk(
-                "VideoPlayback/VuforiaSizzleReel_2.png", getAssets()));
-        mTextures.add(Texture.loadTextureFromApk("VideoPlayback/play.png",
-                getAssets()));
-        mTextures.add(Texture.loadTextureFromApk("VideoPlayback/busy.png",
-                getAssets()));
-        mTextures.add(Texture.loadTextureFromApk("VideoPlayback/error.png",
-                getAssets()));
+                "VideoPlayback/TextureTransparent.png", getAssets()));
     }
 
     // Called when the activity will start interacting with the user.

@@ -676,38 +676,14 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 GLES20.glEnableVertexAttribArray(keyframeTexCoordHandle);
 
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+                        mTextures.get(0).mTextureID[0]);
                 // Depending on the status in which we are we choose the
                 // appropriate
                 // texture to display. Notice that unlike the video these are
                 // regular
                 // GL_TEXTURE_2D textures
-                switch (currentStatus[currentTarget]) {
-                    case READY:
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                                mTextures.get(2).mTextureID[0]);
-                        break;
-                    case REACHED_END:
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                                mTextures.get(2).mTextureID[0]);
-                        break;
-                    case PAUSED:
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                                mTextures.get(2).mTextureID[0]);
-                        break;
-                    case NOT_READY:
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                                mTextures.get(3).mTextureID[0]);
-                        break;
-                    case ERROR:
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                                mTextures.get(4).mTextureID[0]);
-                        break;
-                    default:
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                                mTextures.get(3).mTextureID[0]);
-                        break;
-                }
+
                 GLES20.glUniformMatrix4fv(keyframeMVPMatrixHandle, 1, false,
                         modelViewProjectionButton, 0);
                 GLES20.glUniform1i(keyframeTexSampler2DHandle, 0);
