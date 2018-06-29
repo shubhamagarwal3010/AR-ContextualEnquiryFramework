@@ -270,6 +270,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
             if (isTracking(i)) {
                 // If it is tracking reset the timestamp for lost tracking
                 mLostTrackingSince[i] = -1;
+                if(!(mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING))
+                    mVideoPlayerHelper[i].play(false, mVideoPlayerHelper[i].getCurrentPosition());
             } else {
                 // If it isn't tracking
                 // check whether it just lost it or if it's been a while
@@ -277,7 +279,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                     mLostTrackingSince[i] = SystemClock.uptimeMillis();
                 else {
                     // If it's been more than 2 seconds then pause the player
-                    if ((SystemClock.uptimeMillis() - mLostTrackingSince[i]) > 2000) {
+                    if ((SystemClock.uptimeMillis() - mLostTrackingSince[i]) > 500) {
                         if (mVideoPlayerHelper[i] != null)
                             mVideoPlayerHelper[i].pause();
                     }
