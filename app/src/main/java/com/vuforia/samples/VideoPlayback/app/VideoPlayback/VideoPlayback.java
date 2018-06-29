@@ -49,17 +49,18 @@ import com.vuforia.samples.VideoPlayback.ui.SampleAppMenu.SampleAppMenu;
 import com.vuforia.samples.VideoPlayback.ui.SampleAppMenu.SampleAppMenuGroup;
 import com.vuforia.samples.VideoPlayback.ui.SampleAppMenu.SampleAppMenuInterface;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 
 // The AR activity for the VideoPlayback sample.
 public class VideoPlayback extends Activity implements
         SampleApplicationControl, SampleAppMenuInterface {
-    // Movie for the Targets:
-    public static final int NUM_TARGETS = 2;
-    public static final int STONES = 0;
-    public static final int CHIPS = 1;
     private static final String LOGTAG = "VideoPlayback";
+    public List<String> VIDEO_TARGET_RESOURCES;
+    // Movie for the Targets:
+    public static int NUM_TARGETS =0 ;
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
     SampleApplicationSession vuforiaAppSession;
@@ -88,6 +89,13 @@ public class VideoPlayback extends Activity implements
             this);
     // Alert Dialog used to display SDK errors
     private AlertDialog mErrorDialog;
+
+    public  VideoPlayback(){
+        VIDEO_TARGET_RESOURCES = new ArrayList<String>(){{
+            add("VideoPlayback/VuforiaSizzleReel_1.mp4");
+        }};
+        NUM_TARGETS= VIDEO_TARGET_RESOURCES.size();
+    }
 
     // Called when the activity first starts or the user navigates back
     // to an activity.
@@ -127,8 +135,9 @@ public class VideoPlayback extends Activity implements
             mVideoPlayerHelper[i].setActivity(this);
         }
 
-        mMovieName[STONES] = "VideoPlayback/VuforiaSizzleReel_1.mp4";
-        mMovieName[CHIPS] = "VideoPlayback/VuforiaSizzleReel_2.mp4";
+        for(int i = 0; i< NUM_TARGETS; i++) {
+            mMovieName[i] = VIDEO_TARGET_RESOURCES.get(i);
+        }
 
         // Set the double tap listener:
         mGestureDetector.setOnDoubleTapListener(new OnDoubleTapListener() {
