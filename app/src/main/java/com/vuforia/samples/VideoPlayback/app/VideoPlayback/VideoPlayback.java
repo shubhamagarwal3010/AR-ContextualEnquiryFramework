@@ -56,7 +56,7 @@ import java.util.Vector;
 
 // The AR activity for the VideoPlayback sample.
 public class VideoPlayback extends Activity implements
-        SampleApplicationControl, SampleAppMenuInterface {
+        SampleApplicationControl {
     private static final String LOGTAG = "VideoPlayback";
     public List<String> VIDEO_TARGET_RESOURCES;
     // Movie for the Targets:
@@ -84,7 +84,6 @@ public class VideoPlayback extends Activity implements
     private Vector<Texture> mTextures;
     private RelativeLayout mUILayout;
     private boolean mPlayFullscreenVideo = false;
-    private SampleAppMenu mSampleAppMenu;
     private LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(
             this);
     // Alert Dialog used to display SDK errors
@@ -430,9 +429,6 @@ public class VideoPlayback extends Activity implements
     // gesture detector
     public boolean onTouchEvent(MotionEvent event) {
         boolean result = false;
-        if (mSampleAppMenu != null)
-            result = mSampleAppMenu.processEvent(event);
-
         // Process the Gestures
         if (!result)
             mGestureDetector.onTouchEvent(event);
@@ -599,10 +595,6 @@ public class VideoPlayback extends Activity implements
 
             vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
 
-            mSampleAppMenu = new SampleAppMenu(this, this, "Video Playback",
-                    mGlView, mUILayout, null);
-            setSampleAppMenuSettings();
-
             mIsInitialized = true;
 
         } else {
@@ -681,24 +673,7 @@ public class VideoPlayback extends Activity implements
     public void onVuforiaUpdate(State state) {
     }
 
-    // This method sets the menu's settings
-    private void setSampleAppMenuSettings() {
-        SampleAppMenuGroup group;
 
-        group = mSampleAppMenu.addGroup("", false);
-        group.addTextItem(getString(R.string.menu_back), -1);
-
-        group = mSampleAppMenu.addGroup("", true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            group.addSelectionItem(getString(R.string.menu_playFullscreenVideo),
-                    CMD_FULLSCREEN_VIDEO, mPlayFullscreenVideo);
-        }
-
-        mSampleAppMenu.attachMenu();
-    }
-
-
-    @Override
     public boolean menuProcess(int command) {
 
         boolean result = true;
