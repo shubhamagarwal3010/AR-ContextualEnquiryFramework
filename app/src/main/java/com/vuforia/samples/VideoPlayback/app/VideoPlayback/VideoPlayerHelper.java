@@ -48,12 +48,10 @@ public class VideoPlayerHelper implements OnPreparedListener,
     private ReentrantLock mMediaPlayerLock = null;
     private ReentrantLock mSurfaceTextureLock = null;
 
-    // Initializes the VideoPlayerHelper object.
-    public boolean init() {
+    public VideoPlayerHelper(Activity activity){
         mMediaPlayerLock = new ReentrantLock();
         mSurfaceTextureLock = new ReentrantLock();
-
-        return true;
+        mParentActivity = activity;
     }
 
     // Deinitializes the VideoPlayerHelper object.

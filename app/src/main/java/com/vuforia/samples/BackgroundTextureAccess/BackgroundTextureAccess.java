@@ -33,9 +33,9 @@ import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.VideoBackgroundConfig;
 import com.vuforia.Vuforia;
-import com.vuforia.samples.SampleApplication.SampleApplicationControl;
+import com.vuforia.samples.SampleApplication.ImageTrackerManager;
 import com.vuforia.samples.SampleApplication.SampleApplicationException;
-import com.vuforia.samples.SampleApplication.SampleApplicationSession;
+import com.vuforia.samples.SampleApplication.UpdateTargetCallback;
 import com.vuforia.samples.SampleApplication.utils.LoadingDialogHandler;
 import com.vuforia.samples.SampleApplication.utils.SampleApplicationGLView;
 import com.vuforia.samples.SampleApplication.utils.Texture;
@@ -48,13 +48,13 @@ import java.util.Vector;
 
 
 public class BackgroundTextureAccess extends Activity implements
-        SampleApplicationControl, SampleAppMenuInterface {
+        ImageTrackerManager, SampleAppMenuInterface {
     final public static int CMD_BACK = -1;
     // Constants for Hiding/Showing Loading dialog
     static final int HIDE_LOADING_DIALOG = 0;
     static final int SHOW_LOADING_DIALOG = 1;
     private static final String LOGTAG = "BackgroundTextureAccess";
-    SampleApplicationSession vuforiaAppSession;
+    UpdateTargetCallback updateTargetCallback;
     // Our OpenGL view:
     private SampleApplicationGLView mGlView;
     // Our renderer:
@@ -80,11 +80,11 @@ public class BackgroundTextureAccess extends Activity implements
         mTextures = new Vector<Texture>();
         loadTextures();
 
-        vuforiaAppSession = new SampleApplicationSession(this);
+        updateTargetCallback = new UpdateTargetCallback(this);
 
         startLoadingAnimation();
 
-        vuforiaAppSession
+        updateTargetCallback
                 .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
@@ -189,7 +189,7 @@ public class BackgroundTextureAccess extends Activity implements
         super.onResume();
 
         showProgressIndicator(true);
-        vuforiaAppSession.onResume();
+        updateTargetCallback.onResume();
 
         if (isARInitialized) {
             VideoBackgroundConfig config = Renderer.getInstance()
@@ -205,7 +205,7 @@ public class BackgroundTextureAccess extends Activity implements
         Log.d(LOGTAG, "onConfigurationChanged");
         super.onConfigurationChanged(config);
 
-        vuforiaAppSession.onConfigurationChanged();
+        updateTargetCallback.onConfigurationChanged();
 
         if (isARInitialized) {
             VideoBackgroundConfig vconfig = Renderer.getInstance()
@@ -227,7 +227,7 @@ public class BackgroundTextureAccess extends Activity implements
         }
 
         try {
-            vuforiaAppSession.pauseAR();
+            updateTargetCallback.pauseAR();
         } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
@@ -239,7 +239,7 @@ public class BackgroundTextureAccess extends Activity implements
         super.onDestroy();
 
         try {
-            vuforiaAppSession.stopAR();
+            updateTargetCallback.stopAR();
         } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
@@ -280,7 +280,7 @@ public class BackgroundTextureAccess extends Activity implements
         mGlView = new SampleApplicationGLView(this);
         mGlView.init(translucent, depthSize, stencilSize);
 
-        mRenderer = new BackgroundTextureAccessRenderer(this, vuforiaAppSession);
+        mRenderer = new BackgroundTextureAccessRenderer(this, updateTargetCallback);
         mRenderer.mActivity = this;
         mRenderer.setTextures(mTextures);
         mGlView.setRenderer(mRenderer);
@@ -387,7 +387,7 @@ public class BackgroundTextureAccess extends Activity implements
             // Sets the UILayout to be drawn in front of the camera
             mUILayout.bringToFront();
 
-            vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
+            updateTargetCallback.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
 
             // Hides the Loading Dialog
             loadingDialogHandler

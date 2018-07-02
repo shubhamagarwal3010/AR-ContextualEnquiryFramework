@@ -36,9 +36,9 @@ import com.vuforia.State;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
-import com.vuforia.samples.SampleApplication.SampleApplicationControl;
+import com.vuforia.samples.SampleApplication.ImageTrackerManager;
 import com.vuforia.samples.SampleApplication.SampleApplicationException;
-import com.vuforia.samples.SampleApplication.SampleApplicationSession;
+import com.vuforia.samples.SampleApplication.UpdateTargetCallback;
 import com.vuforia.samples.SampleApplication.utils.LoadingDialogHandler;
 import com.vuforia.samples.SampleApplication.utils.SampleApplicationGLView;
 import com.vuforia.samples.SampleApplication.utils.Texture;
@@ -47,29 +47,28 @@ import com.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayerHelper.MED
 import com.vuforia.samples.VideoTargetAndResourceRepository;
 import com.vuforia.samples.VideoTargetWithResource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 
 // The AR activity for the VideoPlayback sample.
 public class VideoPlayback extends Activity implements
-        SampleApplicationControl {
+        ImageTrackerManager {
     private static final String LOGTAG = "VideoPlayback";
     public List<VideoTargetWithResource> targetWithResources;
     // Movie for the Targets:
     public static int NUM_TARGETS = 0;
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
-    SampleApplicationSession vuforiaAppSession;
+    UpdateTargetCallback vuforiaAppSession;
     Activity mActivity;
     DataSet dataSetStonesAndChips = null;
     boolean mIsInitialized = false;
     // Helpers to detect events such as double tapping:
-    private GestureDetector mGestureDetector = null;
-    private SimpleOnGestureListener mSimpleListener = null;
+    private GestureDetector videoGestureDetector = null;
+    private SimpleOnGestureListener videoGestureListner = null;
     private VideoPlayerHelper mVideoPlayerHelper[] = null;
-    private int mSeekPosition[] = null;
+    private int videoSeekPosition[] = null;
     private boolean mWasPlaying[] = null;
     // A boolean to indicate whether we come from full screen:
     private boolean mReturningFromFullScreen = false;
@@ -98,7 +97,7 @@ public class VideoPlayback extends Activity implements
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        vuforiaAppSession = new SampleApplicationSession(this);
+        vuforiaAppSession = new UpdateTargetCallback(this);
 
         mActivity = this;
 
@@ -113,102 +112,18 @@ public class VideoPlayback extends Activity implements
 
         // Create the gesture detector that will handle the single and
         // double taps:
-        mSimpleListener = new SimpleOnGestureListener();
-        mGestureDetector = new GestureDetector(getApplicationContext(),
-                mSimpleListener);
-
+        videoGestureListner = new SimpleOnGestureListener();
+        videoGestureDetector = new GestureDetector(getApplicationContext(),
+                videoGestureListner);
         mVideoPlayerHelper = new VideoPlayerHelper[NUM_TARGETS];
-        mSeekPosition = new int[NUM_TARGETS];
+        videoSeekPosition = new int[NUM_TARGETS];
         mWasPlaying = new boolean[NUM_TARGETS];
 
         // Create the video player helper that handles the playback of the movie
         // for the targets:
         for (int i = 0; i < NUM_TARGETS; i++) {
-            mVideoPlayerHelper[i] = new VideoPlayerHelper();
-            mVideoPlayerHelper[i].init();
-            mVideoPlayerHelper[i].setActivity(this);
+            mVideoPlayerHelper[i] = new VideoPlayerHelper(this);
         }
-
-        // Set the double tap listener:
-        mGestureDetector.setOnDoubleTapListener(new OnDoubleTapListener() {
-            public boolean onDoubleTap(MotionEvent e) {
-                // We do not react to this event
-                return false;
-            }
-
-
-            public boolean onDoubleTapEvent(MotionEvent e) {
-                // We do not react to this event
-                return false;
-            }
-
-
-            // Handle the single tap
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                final Handler autofocusHandler = new Handler();
-                // Do not react if the StartupScreen is being displayed
-                for (int i = 0; i < NUM_TARGETS; i++) {
-                    // Verify that the tap happened inside the target
-                    if (mRenderer != null && mRenderer.isTapOnScreenInsideTarget(i, e.getX(),
-                            e.getY())) {
-                        // Check if it is playable on texture
-                        if (mVideoPlayerHelper[i].isPlayableOnTexture()) {
-                            // We can play only if the movie was paused, ready
-                            // or stopped
-                            if ((mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PAUSED)
-                                    || (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.READY)
-                                    || (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.STOPPED)
-                                    || (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.REACHED_END)) {
-                                // Pause all other media
-                                pauseAll(i);
-
-                                // If it has reached the end then rewind
-                                if ((mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.REACHED_END))
-                                    mSeekPosition[i] = 0;
-
-                                mVideoPlayerHelper[i].play(mPlayFullscreenVideo,
-                                        mSeekPosition[i]);
-                                mSeekPosition[i] = VideoPlayerHelper.CURRENT_POSITION;
-                            } else if (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING) {
-                                // If it is playing then we pause it
-                                mVideoPlayerHelper[i].pause();
-                            }
-                        } else if (mVideoPlayerHelper[i].isPlayableFullscreen()) {
-                            // If it isn't playable on texture
-                            // Either because it wasn't requested or because it
-                            // isn't supported then request playback fullscreen.
-                            mVideoPlayerHelper[i].play(true,
-                                    VideoPlayerHelper.CURRENT_POSITION);
-                        }
-
-                        // Even though multiple videos can be loaded only one
-                        // can be playing at any point in time. This break
-                        // prevents that, say, overlapping videos trigger
-                        // simultaneously playback.
-                        break;
-                    } else {
-                        boolean result = CameraDevice.getInstance().setFocusMode(
-                                CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
-                        if (!result)
-                            Log.e("SingleTapConfirmed", "Unable to trigger focus");
-
-                        // Generates a Handler to trigger continuous auto-focus
-                        // after 1 second
-                        autofocusHandler.postDelayed(new Runnable() {
-                            public void run() {
-                                final boolean autofocusResult = CameraDevice.getInstance().setFocusMode(
-                                        CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO);
-
-                                if (!autofocusResult)
-                                    Log.e("SingleTapConfirmed", "Unable to re-enable continuous auto-focus");
-                            }
-                        }, 1000L);
-                    }
-                }
-
-                return true;
-            }
-        });
     }
 
     // We want to load specific textures from the APK, which we will later
@@ -232,10 +147,10 @@ public class VideoPlayback extends Activity implements
         if (mRenderer != null) {
             for (int i = 0; i < NUM_TARGETS; i++) {
                 if (!mReturningFromFullScreen) {
-                    mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), mSeekPosition[i],
+                    mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), videoSeekPosition[i],
                             false);
                 } else {
-                    mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), mSeekPosition[i],
+                    mRenderer.requestLoad(i, targetWithResources.get(i).getResource(), videoSeekPosition[i],
                             mWasPlaying[i]);
                 }
             }
@@ -260,7 +175,7 @@ public class VideoPlayback extends Activity implements
                 // Find the movie that was being played full screen
                 for (int i = 0; i < NUM_TARGETS; i++) {
                     if (movieBeingPlayed.compareTo(targetWithResources.get(i).getResource()) == 0) {
-                        mSeekPosition[i] = data.getIntExtra(
+                        videoSeekPosition[i] = data.getIntExtra(
                                 "currentSeekPosition", 0);
                         mWasPlaying[i] = false;
                     }
@@ -291,7 +206,7 @@ public class VideoPlayback extends Activity implements
             // If the activity is paused we need to store the position in which
             // this was currently playing:
             if (mVideoPlayerHelper[i].isPlayableOnTexture()) {
-                mSeekPosition[i] = mVideoPlayerHelper[i].getCurrentPosition();
+                videoSeekPosition[i] = mVideoPlayerHelper[i].getCurrentPosition();
                 mWasPlaying[i] = mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING;
             }
 
@@ -416,7 +331,7 @@ public class VideoPlayback extends Activity implements
         boolean result = false;
         // Process the Gestures
         if (!result)
-            mGestureDetector.onTouchEvent(event);
+            videoGestureDetector.onTouchEvent(event);
 
         return result;
     }
@@ -677,7 +592,7 @@ public class VideoPlayback extends Activity implements
                         mVideoPlayerHelper[i].pause();
 
                         mVideoPlayerHelper[i].play(true,
-                                mSeekPosition[i]);
+                                videoSeekPosition[i]);
                     }
                 }
                 break;

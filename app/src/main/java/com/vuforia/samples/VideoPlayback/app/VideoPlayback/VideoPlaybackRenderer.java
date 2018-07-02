@@ -30,7 +30,7 @@ import com.vuforia.Vec3F;
 import com.vuforia.Vuforia;
 import com.vuforia.samples.SampleApplication.SampleAppRenderer;
 import com.vuforia.samples.SampleApplication.SampleAppRendererControl;
-import com.vuforia.samples.SampleApplication.SampleApplicationSession;
+import com.vuforia.samples.SampleApplication.UpdateTargetCallback;
 import com.vuforia.samples.SampleApplication.utils.SampleMath;
 import com.vuforia.samples.SampleApplication.utils.SampleUtils;
 import com.vuforia.samples.SampleApplication.utils.Texture;
@@ -51,7 +51,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
     private static final String LOGTAG = "VideoPlaybackRenderer";
     static int NUM_QUAD_VERTEX = 4;
     static int NUM_QUAD_INDEX = 6;
-    SampleApplicationSession vuforiaAppSession;
+    UpdateTargetCallback updateTargetCallback;
     SampleAppRenderer mSampleAppRenderer;
     // Video Playback Textures for the two targets
     int videoPlaybackTextureID[] = new int[VideoPlayback.NUM_TARGETS];
@@ -90,7 +90,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
     private float videoQuadTextureCoords[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
             1.0f, 0.0f, 1.0f,};
     // This variable will hold the transformed coordinates (changes every frame)
-    private float videoQuadTextureCoordsPerTexture [][];
+    private float videoQuadTextureCoordsPerTarget[][];
     private boolean mIsActive = false;
     private Matrix44F tappingProjectionMatrix = null;
     private float[][] mTexCoordTransformationMatrix = null;
@@ -105,17 +105,18 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
 
     public VideoPlaybackRenderer(VideoPlayback activity,
-                                 SampleApplicationSession session) {
+                                 UpdateTargetCallback session) {
 
         mActivity = activity;
-        vuforiaAppSession = session;
-        videoQuadTextureCoordsPerTexture = new float[VideoPlayback.NUM_TARGETS][];
+        updateTargetCallback = session;
+        videoQuadTextureCoordsPerTarget = new float[VideoPlayback.NUM_TARGETS][];
         for(int i=0;i<VideoPlayback.NUM_TARGETS ; i++){
-            videoQuadTextureCoordsPerTexture[i] = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
+            videoQuadTextureCoordsPerTarget[i] = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
         }
         // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
-        mSampleAppRenderer = new SampleAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
+        mSampleAppRenderer =
+                new SampleAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
 
         // Create an array of the size of the number of targets we have
         mVideoPlayerHelper = new VideoPlayerHelper[VideoPlayback.NUM_TARGETS];
@@ -585,7 +586,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
                 GLES20.glVertexAttribPointer(videoPlaybackTexCoordHandle,
                         2, GLES20.GL_FLOAT, false, 0,
-                        fillBuffer(videoQuadTextureCoordsPerTexture[currentTarget]));
+                        fillBuffer(videoQuadTextureCoordsPerTarget[currentTarget]));
 
 
                 GLES20.glEnableVertexAttribArray(videoPlaybackVertexHandle);
@@ -752,29 +753,29 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         float tempUVMultRes[];
 
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsPerTexture[target][0],
-                videoQuadTextureCoordsPerTexture[target][1],
+                videoQuadTextureCoordsPerTarget[target][0],
+                videoQuadTextureCoordsPerTarget[target][1],
                 videoQuadTextureCoords[0], videoQuadTextureCoords[1], mtx);
-        videoQuadTextureCoordsPerTexture[target][0] = tempUVMultRes[0];
-        videoQuadTextureCoordsPerTexture[target][1] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTarget[target][0] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTarget[target][1] = tempUVMultRes[1];
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsPerTexture[target][2],
-                videoQuadTextureCoordsPerTexture[target][3],
+                videoQuadTextureCoordsPerTarget[target][2],
+                videoQuadTextureCoordsPerTarget[target][3],
                 videoQuadTextureCoords[2], videoQuadTextureCoords[3], mtx);
-        videoQuadTextureCoordsPerTexture[target][2] = tempUVMultRes[0];
-        videoQuadTextureCoordsPerTexture[target][3] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTarget[target][2] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTarget[target][3] = tempUVMultRes[1];
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsPerTexture[target][4],
-                videoQuadTextureCoordsPerTexture[target][5],
+                videoQuadTextureCoordsPerTarget[target][4],
+                videoQuadTextureCoordsPerTarget[target][5],
                 videoQuadTextureCoords[4], videoQuadTextureCoords[5], mtx);
-        videoQuadTextureCoordsPerTexture[target][4] = tempUVMultRes[0];
-        videoQuadTextureCoordsPerTexture[target][5] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTarget[target][4] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTarget[target][5] = tempUVMultRes[1];
         tempUVMultRes = uvMultMat4f(
-                videoQuadTextureCoordsPerTexture[target][6],
-                videoQuadTextureCoordsPerTexture[target][7],
+                videoQuadTextureCoordsPerTarget[target][6],
+                videoQuadTextureCoordsPerTarget[target][7],
                 videoQuadTextureCoords[6], videoQuadTextureCoords[7], mtx);
-        videoQuadTextureCoordsPerTexture[target][6] = tempUVMultRes[0];
-        videoQuadTextureCoordsPerTexture[target][7] = tempUVMultRes[1];
+        videoQuadTextureCoordsPerTarget[target][6] = tempUVMultRes[0];
+        videoQuadTextureCoordsPerTarget[target][7] = tempUVMultRes[1];
     }
 
 

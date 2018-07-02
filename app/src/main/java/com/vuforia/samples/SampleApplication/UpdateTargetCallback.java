@@ -29,7 +29,7 @@ import com.vuforia.samples.AppHelper;
 import com.vuforia.samples.VideoPlayback.R;
 
 
-public class SampleApplicationSession implements UpdateCallbackInterface {
+public class UpdateTargetCallback implements UpdateCallbackInterface {
 
     private static final String LOGTAG = "SampleAppSession";
     // An object used for synchronizing Vuforia initialization, dataset loading
@@ -39,7 +39,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
     private final Object mLifecycleLock = new Object();
     // Reference to the current activity
     private Activity mActivity;
-    private SampleApplicationControl mSessionControl;
+    private ImageTrackerManager imageTrackerManager;
     // Flags
     private boolean mStarted = false;
     private boolean mCameraRunning = false;
@@ -50,14 +50,14 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
     private StartVuforiaTask mStartVuforiaTask;
     private ResumeVuforiaTask mResumeVuforiaTask;
     // Vuforia initialization flags:
-    private int mVuforiaFlags = 0;
+    private int vuforiaRenderingMethodFlag = 0;
 
     // Holds the camera configuration to use upon resuming
     private int mCamera = CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT;
 
 
-    public SampleApplicationSession(SampleApplicationControl sessionControl) {
-        mSessionControl = sessionControl;
+    public UpdateTargetCallback(ImageTrackerManager imageTrackerManager) {
+        this.imageTrackerManager = imageTrackerManager;
     }
 
 
@@ -73,7 +73,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
         // Use an OrientationChangeListener here to capture all orientation changes.  Android
         // will not send an Activity.onConfigurationChanged() callback on a 180 degree rotation,
         // ie: Left Landscape to Right Landscape.  Vuforia needs to react to this change and the
-        // SampleApplicationSession needs to update the Projection Matrix.
+        // UpdateTargetCallback needs to update the Projection Matrix.
         OrientationEventListener orientationEventListener = new OrientationEventListener(mActivity) {
             int mLastRotation = -1;
 
@@ -98,7 +98,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        mVuforiaFlags = INIT_FLAGS.GL_20;
+        vuforiaRenderingMethodFlag = INIT_FLAGS.GL_20;
 
         // Initialize Vuforia SDK asynchronously to avoid blocking the
         // main (UI) thread.
@@ -127,7 +127,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
         }
 
         if (vuforiaException != null)
-            mSessionControl.onInitARDone(vuforiaException);
+            imageTrackerManager.onInitARDone(vuforiaException);
     }
 
 
@@ -164,7 +164,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
                     SampleApplicationException.CAMERA_INITIALIZATION_FAILURE, error);
         }
 
-        mSessionControl.doStartTrackers();
+        imageTrackerManager.doStartTrackers();
 
         mCameraRunning = true;
 
@@ -194,7 +194,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
         if (vuforiaException != null) {
             // Send Vuforia Exception to the application and call initDone
             // to stop initialization process
-            mSessionControl.onInitARDone(vuforiaException);
+            imageTrackerManager.onInitARDone(vuforiaException);
         }
     }
 
@@ -229,10 +229,10 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             boolean deinitTrackersResult;
 
             // Destroy the tracking data set:
-            unloadTrackersResult = mSessionControl.doUnloadTrackersData();
+            unloadTrackersResult = imageTrackerManager.doUnloadTrackersData();
 
             // Deinitialize the trackers:
-            deinitTrackersResult = mSessionControl.doDeinitTrackers();
+            deinitTrackersResult = imageTrackerManager.doDeinitTrackers();
 
             // Deinitialize Vuforia SDK:
             Vuforia.deinit();
@@ -264,7 +264,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
     // Callback called every cycle
     @Override
     public void Vuforia_onUpdate(State s) {
-        mSessionControl.onVuforiaUpdate(s);
+        imageTrackerManager.onVuforiaUpdate(s);
     }
 
 
@@ -299,7 +299,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             if (vuforiaException != null) {
                 // Send Vuforia Exception to the application and call initDone
                 // to stop initialization process
-                mSessionControl.onInitARDone(vuforiaException);
+                imageTrackerManager.onInitARDone(vuforiaException);
             }
         }
     }
@@ -344,7 +344,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
 
     public void stopCamera() {
         if (mCameraRunning) {
-            mSessionControl.doStopTrackers();
+            imageTrackerManager.doStopTrackers();
             mCameraRunning = false;
             CameraDevice.getInstance().stop();
             CameraDevice.getInstance().deinit();
@@ -366,7 +366,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
         protected Boolean doInBackground(Void... params) {
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mLifecycleLock) {
-                Vuforia.setInitParameters(mActivity, mVuforiaFlags, AppHelper.LICENSE_KEY);
+                Vuforia.setInitParameters(mActivity, vuforiaRenderingMethodFlag, AppHelper.LICENSE_KEY);
                 do {
                     // Vuforia.init() blocks until an initialization step is
                     // complete, then it proceeds to the next step and reports
@@ -441,7 +441,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             if (vuforiaException != null) {
                 // Send Vuforia Exception to the application and call initDone
                 // to stop initialization process
-                mSessionControl.onInitARDone(vuforiaException);
+                imageTrackerManager.onInitARDone(vuforiaException);
             }
         }
     }
@@ -463,7 +463,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             // We may start the camera only if the Vuforia SDK has already been initialized
             if (mStarted && !mCameraRunning) {
                 startAR(mCamera);
-                mSessionControl.onVuforiaResumed();
+                imageTrackerManager.onVuforiaResumed();
             }
         }
     }
@@ -473,7 +473,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
         protected Boolean doInBackground(Void... params) {
             synchronized (mLifecycleLock) {
                 // Load the tracker data set:
-                return mSessionControl.doInitTrackers();
+                return imageTrackerManager.doInitTrackers();
             }
         }
 
@@ -508,7 +508,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             if (vuforiaException != null) {
                 // Send Vuforia Exception to the application and call initDone
                 // to stop initialization process
-                mSessionControl.onInitARDone(vuforiaException);
+                imageTrackerManager.onInitARDone(vuforiaException);
             }
         }
     }
@@ -519,7 +519,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             // Prevent the onDestroy() method to overlap:
             synchronized (mLifecycleLock) {
                 // Load the tracker data set:
-                return mSessionControl.doLoadTrackersData();
+                return imageTrackerManager.doLoadTrackersData();
             }
         }
 
@@ -546,14 +546,14 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
                 // garbage collector will actually be run.
                 System.gc();
 
-                Vuforia.registerCallback(SampleApplicationSession.this);
+                Vuforia.registerCallback(UpdateTargetCallback.this);
 
                 mStarted = true;
             }
 
             // Done loading the tracker, update application status, send the
             // exception to check errors
-            mSessionControl.onInitARDone(vuforiaException);
+            imageTrackerManager.onInitARDone(vuforiaException);
         }
     }
 
@@ -582,10 +582,10 @@ public class SampleApplicationSession implements UpdateCallbackInterface {
             if (vuforiaException != null) {
                 // Send Vuforia Exception to the application and call initDone
                 // to stop initialization process
-                mSessionControl.onInitARDone(vuforiaException);
+                imageTrackerManager.onInitARDone(vuforiaException);
             }
 
-            mSessionControl.onVuforiaStarted();
+            imageTrackerManager.onVuforiaStarted();
         }
     }
 

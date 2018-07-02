@@ -25,7 +25,7 @@ import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
 import com.vuforia.Vuforia;
 import com.vuforia.samples.SampleApplication.SampleAppRenderer;
 import com.vuforia.samples.SampleApplication.SampleAppRendererControl;
-import com.vuforia.samples.SampleApplication.SampleApplicationSession;
+import com.vuforia.samples.SampleApplication.UpdateTargetCallback;
 import com.vuforia.samples.SampleApplication.utils.SampleUtils;
 import com.vuforia.samples.SampleApplication.utils.Teapot;
 import com.vuforia.samples.SampleApplication.utils.Texture;
@@ -41,7 +41,7 @@ public class BackgroundTextureAccessRenderer implements GLSurfaceView.Renderer, 
     private static final String LOGTAG = "BTARenderer";
     private static final float OBJECT_SCALE_FLOAT = 0.003f;
     public BackgroundTextureAccess mActivity;
-    SampleApplicationSession vuforiaAppSession;
+    UpdateTargetCallback vuforiaAppSession;
     SampleAppRenderer mSampleAppRenderer;
     private boolean mIsActive = false;
     private Vector<Texture> mTextures;
@@ -58,7 +58,7 @@ public class BackgroundTextureAccessRenderer implements GLSurfaceView.Renderer, 
 
     private Teapot mTeapot;
 
-    public BackgroundTextureAccessRenderer(BackgroundTextureAccess activity, SampleApplicationSession appSession) {
+    public BackgroundTextureAccessRenderer(BackgroundTextureAccess activity, UpdateTargetCallback appSession) {
         vuforiaAppSession = appSession;
         mActivity = activity;
 

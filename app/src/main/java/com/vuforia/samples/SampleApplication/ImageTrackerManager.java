@@ -12,8 +12,8 @@ package com.vuforia.samples.SampleApplication;
 import com.vuforia.State;
 
 
-//  Interface to be implemented by the activity which uses SampleApplicationSession
-public interface SampleApplicationControl {
+//  Interface to be implemented by the activity which uses UpdateTargetCallback
+public interface ImageTrackerManager {
 
     // To be called to initialize the trackers
     boolean doInitTrackers();
