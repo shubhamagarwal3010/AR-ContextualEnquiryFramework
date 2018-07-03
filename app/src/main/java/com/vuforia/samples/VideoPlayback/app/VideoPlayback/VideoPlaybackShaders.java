@@ -36,14 +36,51 @@ public class VideoPlaybackShaders {
      * texSamplerOES uniform.
      */
 
-    public static final String VIDEO_PLAYBACK_FRAGMENT_SHADER = " \n"
+    /*public static final String VIDEO_PLAYBACK_FRAGMENT_SHADER = " \n"
             + "#extension GL_OES_EGL_image_external : require \n"
             + "precision mediump float; \n"
             + "varying vec2 texCoord; \n"
             + "uniform samplerExternalOES texSamplerOES; \n" + " \n"
             + "void main() \n"
             + "{ \n"
-            + "   gl_FragColor = texture2D(texSamplerOES, texCoord); \n"
-            + "} \n";
+            + "vec4 texColor = texture2D(texSamplerOES, texCoord); \n"
+            + "vec4 backgroundColor = vec4(0.31, 0.98, 0.26,1.0);\n"
+            +"float difference = distance(texColor,backgroundColor);\n"
+            + "if( difference < 0.4 ) {\n"
+                +"texColor.rgb = vec3( 0 );\n"
+            +"}\n"
+            + "gl_FragColor = texColor;\n"
+            + "} \n";*/
+
+
+    public static final String VIDEO_PLAYBACK_FRAGMENT_SHADER =
+            "#extension GL_OES_EGL_image_external : require \n" +
+                    "precision mediump float; \n" +
+                    "uniform samplerExternalOES texSamplerOES; \n" +
+                    " varying vec2 texCoord;\n" +
+                    " varying vec2 texdim0;\n" +
+                    " void main()\n\n" +
+                    " {\n" +
+                    " vec3 keying_color =  vec3(0.31, 0.98, 0.26);\n" +
+                    " float thresh = 0.45; // [0, 1.732]\n" +
+                    " float slope = 0.1; // [0, 1]\n" +
+                    " vec3 input_color = texture2D(texSamplerOES, texCoord).rgb;\n" +
+                    " float d = abs(length(abs(keying_color.rgb - input_color.rgb)));\n" +
+                    " float edge0 = thresh * (1.0 - slope);\n" +
+                    " float alpha = smoothstep(edge0, thresh, d);\n" +
+                    " gl_FragColor = vec4(input_color,alpha);\n" +
+                    " }";
+}
+
+/* vec2 xy = fragCoord.xy / iResolution.xy;
+vec4 texColor = texture(iChannel1,xy);
+vec4 backgroundColor = vec4(13.0/255.0,161.0/255.0,37.0/255.0,1.0);
+float difference = distance(texColor,backgroundColor);
+if( difference < 0.4 ) {
+
+	texColor.rgb = vec3( 0 );
 
 }
+
+fragColor = texColor;
+*/

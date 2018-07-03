@@ -49,7 +49,6 @@ import javax.microedition.khronos.opengles.GL10;
 // The renderer class for the VideoPlayback sample.
 public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppRendererControl {
     private static final String LOGTAG = "VideoPlaybackRenderer";
-    static int NUM_QUAD_VERTEX = 4;
     static int NUM_QUAD_INDEX = 6;
     UpdateTargetCallback updateTargetCallback;
     SampleAppRenderer mSampleAppRenderer;
@@ -529,7 +528,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                         targetPositiveDimensions[currentTarget].getData()[0]);
                 Matrix.multiplyMM(modelViewProjectionKeyframe, 0,
                         projectionMatrix, 0, modelViewMatrixKeyframe, 0);
-
+                GLES20.glEnable(GLES20.GL_BLEND);
+                GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
                 GLES20.glUseProgram(keyframeShaderID);
 
                 // Prepare for rendering the keyframe
@@ -559,6 +559,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 GLES20.glDisableVertexAttribArray(keyframeTexCoordHandle);
 
                 GLES20.glUseProgram(0);
+                GLES20.glDisable(GLES20.GL_BLEND);
             } else
             // In any other case, such as playing or paused, we render
             // the actual contents
@@ -577,7 +578,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                         targetPositiveDimensions[currentTarget].getData()[0]);
                 Matrix.multiplyMM(modelViewProjectionVideo, 0,
                         projectionMatrix, 0, modelViewMatrixVideo, 0);
-
+                GLES20.glEnable(GLES20.GL_BLEND);
+                GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
                 GLES20.glUseProgram(videoPlaybackShaderID);
 
                 // Prepare for rendering the keyframe
@@ -611,6 +613,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 GLES20.glDisableVertexAttribArray(videoPlaybackTexCoordHandle);
 
                 GLES20.glUseProgram(0);
+                GLES20.glDisable(GLES20.GL_BLEND);
 
             }
 
@@ -660,7 +663,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                                 (targetPositiveDimensions[currentTarget].getData()[1] / 2.0f));
                 Matrix.multiplyMM(modelViewProjectionButton, 0,
                         projectionMatrix, 0, modelViewMatrixButton, 0);
-
+                GLES20.glEnable(GLES20.GL_BLEND);
+                GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
                 GLES20.glUseProgram(keyframeShaderID);
 
                 GLES20.glVertexAttribPointer(keyframeVertexHandle, 3,
@@ -692,7 +696,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 GLES20.glDisableVertexAttribArray(keyframeTexCoordHandle);
 
                 GLES20.glUseProgram(0);
-
+                GLES20.glDisable(GLES20.GL_BLEND);
                 // Finally we return the depth func to its original state
                 GLES20.glDepthFunc(GLES20.GL_LESS);
                 GLES20.glDisable(GLES20.GL_BLEND);
