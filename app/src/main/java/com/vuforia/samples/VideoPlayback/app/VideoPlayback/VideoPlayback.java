@@ -17,10 +17,8 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,7 +58,7 @@ public class VideoPlayback extends Activity implements
     public static int NUM_TARGETS = 0;
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
-    UpdateTargetCallback vuforiaAppSession;
+    UpdateTargetCallback updateTargetCallback;
     Activity mActivity;
     DataSet dataSetStonesAndChips = null;
     boolean mIsInitialized = false;
@@ -97,18 +95,18 @@ public class VideoPlayback extends Activity implements
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        vuforiaAppSession = new UpdateTargetCallback(this);
-
-        mActivity = this;
+        updateTargetCallback = new UpdateTargetCallback(this);
 
         startLoadingAnimation();
 
-        vuforiaAppSession
+        updateTargetCallback
                 .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Load any sample specific textures:
         mTextures = new Vector<Texture>();
         loadTextures();
+
+        mActivity = this;
 
         // Create the gesture detector that will handle the single and
         // double taps:
@@ -141,7 +139,7 @@ public class VideoPlayback extends Activity implements
         super.onResume();
 
         showProgressIndicator(true);
-        vuforiaAppSession.onResume();
+        updateTargetCallback.onResume();
 
         // Reload all the movies
         if (mRenderer != null) {
@@ -188,7 +186,7 @@ public class VideoPlayback extends Activity implements
         Log.d(LOGTAG, "onConfigurationChanged");
         super.onConfigurationChanged(config);
 
-        vuforiaAppSession.onConfigurationChanged();
+        updateTargetCallback.onConfigurationChanged();
     }
 
     // Called when the system is about to start resuming a previous activity.
@@ -219,7 +217,7 @@ public class VideoPlayback extends Activity implements
         mReturningFromFullScreen = false;
 
         try {
-            vuforiaAppSession.pauseAR();
+            updateTargetCallback.pauseAR();
         } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
@@ -238,7 +236,7 @@ public class VideoPlayback extends Activity implements
         }
 
         try {
-            vuforiaAppSession.stopAR();
+            updateTargetCallback.stopAR();
         } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
@@ -303,7 +301,7 @@ public class VideoPlayback extends Activity implements
         mGlView = new SampleApplicationGLView(this);
         mGlView.init(translucent, depthSize, stencilSize);
 
-        mRenderer = new VideoPlaybackRenderer(this, vuforiaAppSession);
+        mRenderer = new VideoPlaybackRenderer(this, updateTargetCallback);
         mRenderer.setTextures(mTextures);
 
         // The renderer comes has the OpenGL context, thus, loading to texture
@@ -493,7 +491,7 @@ public class VideoPlayback extends Activity implements
             // Sets the layout background to transparent
             mUILayout.setBackgroundColor(Color.TRANSPARENT);
 
-            vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
+            updateTargetCallback.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
 
             mIsInitialized = true;
 

@@ -76,16 +76,16 @@ public class BackgroundTextureAccess extends Activity implements
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        // Load any sample specific textures:
-        mTextures = new Vector<Texture>();
-        loadTextures();
-
         updateTargetCallback = new UpdateTargetCallback(this);
 
         startLoadingAnimation();
 
         updateTargetCallback
                 .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        // Load any sample specific textures:
+        mTextures = new Vector<Texture>();
+        loadTextures();
     }
 
     // We want to load specific textures from the APK, which we will later
@@ -93,94 +93,6 @@ public class BackgroundTextureAccess extends Activity implements
     private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk(
                 "BgdTexture/TextureTeapotRed.png", getAssets()));
-    }
-
-    // Tracker initialization and deinitialization.
-    @Override
-    public boolean doInitTrackers() {
-        // Indicate if the trackers were initialized correctly
-        boolean result = true;
-
-        TrackerManager tManager = TrackerManager.getInstance();
-        Tracker tracker = tManager.initTracker(ObjectTracker.getClassType());
-        if (tracker == null) {
-            Log.e(
-                    LOGTAG,
-                    "Tracker not initialized. Tracker already initialized or the camera is already started");
-            result = false;
-        } else {
-            Log.i(LOGTAG, "Tracker successfully initialized");
-        }
-
-        return result;
-    }
-
-    @Override
-    public boolean doDeinitTrackers() {
-        // Indicate if the trackers were deinitialized correctly
-        boolean result = true;
-
-        TrackerManager tManager = TrackerManager.getInstance();
-        tManager.deinitTracker(ObjectTracker.getClassType());
-
-        return result;
-    }
-
-    // Functions to load and destroy tracking data.
-    @Override
-    public boolean doLoadTrackersData() {
-        TrackerManager tManager = TrackerManager.getInstance();
-        ObjectTracker objectTracker = (ObjectTracker) tManager
-                .getTracker(ObjectTracker.getClassType());
-        if (objectTracker == null)
-            return false;
-
-        mDataSetTarmac = objectTracker.createDataSet();
-        if (mDataSetTarmac == null)
-            return false;
-
-        if (!mDataSetTarmac.load("Tarmac.xml",
-                STORAGE_TYPE.STORAGE_APPRESOURCE))
-            return false;
-
-        if (!objectTracker.activateDataSet(mDataSetTarmac))
-            return false;
-
-        int numTrackables = mDataSetTarmac.getNumTrackables();
-        for (int count = 0; count < numTrackables; count++) {
-            String name = "Tarmac : "
-                    + mDataSetTarmac.getTrackable(count).getName();
-            mDataSetTarmac.getTrackable(count).setUserData(name);
-            Log.d(LOGTAG, "UserData:Set the following user data "
-                    + (String) mDataSetTarmac.getTrackable(count).getUserData());
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean doUnloadTrackersData() {
-        // Indicate if the trackers were unloaded correctly
-        boolean result = true;
-
-        TrackerManager tManager = TrackerManager.getInstance();
-        ObjectTracker objectTracker = (ObjectTracker) tManager
-                .getTracker(ObjectTracker.getClassType());
-        if (objectTracker == null)
-            return false;
-
-        if (mDataSetTarmac != null && mDataSetTarmac.isActive()) {
-            if (objectTracker.getActiveDataSet(0).equals(mDataSetTarmac)
-                    && !objectTracker.deactivateDataSet(mDataSetTarmac)) {
-                result = false;
-            } else if (!objectTracker.destroyDataSet(mDataSetTarmac)) {
-                result = false;
-            }
-
-            mDataSetTarmac = null;
-        }
-
-        return result;
     }
 
     // Called when the activity will start interacting with the user.
@@ -286,16 +198,6 @@ public class BackgroundTextureAccess extends Activity implements
         mGlView.setRenderer(mRenderer);
     }
 
-    // Returns the number of registered textures.
-    public int getTextureCount() {
-        return mTextures.size();
-    }
-
-    // Returns the texture object at the specified index.
-    public Texture getTexture(int i) {
-        return mTextures.elementAt(i);
-    }
-
     public boolean onTouchEvent(MotionEvent event) {
         float x, y;
 
@@ -340,6 +242,104 @@ public class BackgroundTextureAccess extends Activity implements
 
         // Indicate that event was handled:
         return true;
+    }
+
+    // Tracker initialization and deinitialization.
+    @Override
+    public boolean doInitTrackers() {
+        // Indicate if the trackers were initialized correctly
+        boolean result = true;
+
+        TrackerManager tManager = TrackerManager.getInstance();
+        Tracker tracker = tManager.initTracker(ObjectTracker.getClassType());
+        if (tracker == null) {
+            Log.e(
+                    LOGTAG,
+                    "Tracker not initialized. Tracker already initialized or the camera is already started");
+            result = false;
+        } else {
+            Log.i(LOGTAG, "Tracker successfully initialized");
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean doDeinitTrackers() {
+        // Indicate if the trackers were deinitialized correctly
+        boolean result = true;
+
+        TrackerManager tManager = TrackerManager.getInstance();
+        tManager.deinitTracker(ObjectTracker.getClassType());
+
+        return result;
+    }
+
+    // Functions to load and destroy tracking data.
+    @Override
+    public boolean doLoadTrackersData() {
+        TrackerManager tManager = TrackerManager.getInstance();
+        ObjectTracker objectTracker = (ObjectTracker) tManager
+                .getTracker(ObjectTracker.getClassType());
+        if (objectTracker == null)
+            return false;
+
+        mDataSetTarmac = objectTracker.createDataSet();
+        if (mDataSetTarmac == null)
+            return false;
+
+        if (!mDataSetTarmac.load("Tarmac.xml",
+                STORAGE_TYPE.STORAGE_APPRESOURCE))
+            return false;
+
+        if (!objectTracker.activateDataSet(mDataSetTarmac))
+            return false;
+
+        int numTrackables = mDataSetTarmac.getNumTrackables();
+        for (int count = 0; count < numTrackables; count++) {
+            String name = "Tarmac : "
+                    + mDataSetTarmac.getTrackable(count).getName();
+            mDataSetTarmac.getTrackable(count).setUserData(name);
+            Log.d(LOGTAG, "UserData:Set the following user data "
+                    + (String) mDataSetTarmac.getTrackable(count).getUserData());
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean doUnloadTrackersData() {
+        // Indicate if the trackers were unloaded correctly
+        boolean result = true;
+
+        TrackerManager tManager = TrackerManager.getInstance();
+        ObjectTracker objectTracker = (ObjectTracker) tManager
+                .getTracker(ObjectTracker.getClassType());
+        if (objectTracker == null)
+            return false;
+
+        if (mDataSetTarmac != null && mDataSetTarmac.isActive()) {
+            if (objectTracker.getActiveDataSet(0).equals(mDataSetTarmac)
+                    && !objectTracker.deactivateDataSet(mDataSetTarmac)) {
+                result = false;
+            } else if (!objectTracker.destroyDataSet(mDataSetTarmac)) {
+                result = false;
+            }
+
+            mDataSetTarmac = null;
+        }
+
+        return result;
+    }
+
+    // Returns the number of registered textures.
+    public int getTextureCount() {
+        return mTextures.size();
+    }
+
+    // Returns the texture object at the specified index.
+    public Texture getTexture(int i) {
+        return mTextures.elementAt(i);
     }
 
     @Override
