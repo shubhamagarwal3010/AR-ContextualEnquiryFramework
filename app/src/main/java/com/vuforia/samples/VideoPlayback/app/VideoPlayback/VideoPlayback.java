@@ -131,6 +131,12 @@ public class VideoPlayback extends Activity implements
                 "VideoPlayback/TextureTransparent.png", getAssets()));
         mTextures.add(Texture.loadTextureFromApk(
                 "VideoPlayback/TextureTransparent.png", getAssets()));
+//        mTextures.add(Texture.loadTextureFromApk("VideoPlayback/play.png",
+//                getAssets()));
+//        mTextures.add(Texture.loadTextureFromApk("VideoPlayback/busy.png",
+//                getAssets()));
+//        mTextures.add(Texture.loadTextureFromApk("VideoPlayback/error.png",
+//                getAssets()));
     }
 
     // Called when the activity will start interacting with the user.

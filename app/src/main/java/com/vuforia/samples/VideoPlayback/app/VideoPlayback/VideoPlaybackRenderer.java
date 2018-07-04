@@ -112,7 +112,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         for(int i=0;i<VideoPlayback.NUM_TARGETS ; i++){
             videoQuadTextureCoordsPerTarget[i] = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
         }
-        // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting
+        // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting/
         // the device mode AR/VR and stereo mode
         mSampleAppRenderer =
                 new SampleAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
@@ -270,7 +270,9 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
             if (isTracking(i)) {
                 // If it is tracking reset the timestamp for lost tracking
                 mLostTrackingSince[i] = -1;
-                if(!(mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING))
+                if(mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.READY
+                        || mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.REACHED_END
+                        || mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PAUSED)
                     mVideoPlayerHelper[i].play(false, mVideoPlayerHelper[i].getCurrentPosition());
             } else {
                 // If it isn't tracking
@@ -683,6 +685,25 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 // texture to display. Notice that unlike the video these are
                 // regular
                 // GL_TEXTURE_2D textures
+                Log.d("currentStatus-vuforia",currentStatus[currentTarget].name());
+//                switch (currentStatus[currentTarget]) {
+//                    case REACHED_END:
+//                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+//                                mTextures.get(2).mTextureID[0]);
+//                        break;
+//                    case NOT_READY:
+//                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+//                                mTextures.get(3).mTextureID[0]);
+//                        break;
+//                    case ERROR:
+//                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+//                                mTextures.get(4).mTextureID[0]);
+//                        break;
+//                    default:
+//                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+//                                mTextures.get(3).mTextureID[0]);
+//                        break;
+//                }
 
                 GLES20.glUniformMatrix4fv(keyframeMVPMatrixHandle, 1, false,
                         modelViewProjectionButton, 0);

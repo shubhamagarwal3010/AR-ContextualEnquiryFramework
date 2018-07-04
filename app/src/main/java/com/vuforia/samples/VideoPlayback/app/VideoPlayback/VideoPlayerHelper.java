@@ -23,6 +23,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Surface;
 
@@ -556,6 +557,9 @@ public class VideoPlayerHelper implements OnPreparedListener,
             // "Cannot get the current playback position of this video if it is not ready");
             return -1;
         }
+
+        if(mCurrentState == MEDIA_STATE.REACHED_END)
+            return 0;
 
         int result = -1;
         mMediaPlayerLock.lock();
