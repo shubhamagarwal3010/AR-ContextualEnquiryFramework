@@ -23,7 +23,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Surface;
 
@@ -49,7 +48,7 @@ public class VideoPlayerHelper implements OnPreparedListener,
     private ReentrantLock mMediaPlayerLock = null;
     private ReentrantLock mSurfaceTextureLock = null;
 
-    public VideoPlayerHelper(Activity activity){
+    public VideoPlayerHelper(Activity activity) {
         mMediaPlayerLock = new ReentrantLock();
         mSurfaceTextureLock = new ReentrantLock();
         mParentActivity = activity;
@@ -558,7 +557,7 @@ public class VideoPlayerHelper implements OnPreparedListener,
             return -1;
         }
 
-        if(mCurrentState == MEDIA_STATE.REACHED_END)
+        if (mCurrentState == MEDIA_STATE.REACHED_END)
             return 0;
 
         int result = -1;

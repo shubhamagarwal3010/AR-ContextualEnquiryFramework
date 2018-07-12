@@ -109,7 +109,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         mActivity = activity;
         updateTargetCallback = session;
         videoQuadTextureCoordsPerTarget = new float[VideoPlayback.NUM_TARGETS][];
-        for(int i=0;i<VideoPlayback.NUM_TARGETS ; i++){
+        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++) {
             videoQuadTextureCoordsPerTarget[i] = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
         }
         // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting/
@@ -270,7 +270,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
             if (isTracking(i)) {
                 // If it is tracking reset the timestamp for lost tracking
                 mLostTrackingSince[i] = -1;
-                if(mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.READY
+                if (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.READY
                         || mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.REACHED_END
                         || mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PAUSED)
                     mVideoPlayerHelper[i].play(false, mVideoPlayerHelper[i].getCurrentPosition());
@@ -383,7 +383,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         keyframeTexSampler2DHandle = GLES20.glGetUniformLocation(
                 keyframeShaderID, "texSampler2D");
 
-        for(int i = 0; i< VideoPlayback.NUM_TARGETS; i++) {
+        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++) {
             keyframeQuadAspectRatio[i] = (float) mTextures
                     .get(i).mHeight / (float) mTextures.get(i).mWidth;
         }
@@ -486,7 +486,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
             // We store the modelview matrix to be used later by the tap
             // calculation
-            currentTarget =  mActivity.getIndexOfTargetFromTargetName(imageTarget.getName());
+            currentTarget = mActivity.getIndexOfTargetFromTargetName(imageTarget.getName());
 
             modelViewMatrix[currentTarget] = Tool
                     .convertPose2GLMatrix(trackableResult.getPose());
@@ -685,7 +685,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 // texture to display. Notice that unlike the video these are
                 // regular
                 // GL_TEXTURE_2D textures
-                Log.d("currentStatus-vuforia",currentStatus[currentTarget].name());
+                Log.d("currentStatus-vuforia", currentStatus[currentTarget].name());
 //                switch (currentStatus[currentTarget]) {
 //                    case REACHED_END:
 //                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,

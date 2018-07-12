@@ -9,6 +9,7 @@ countries.
 
 package com.vuforia.samples.SampleApplication.utils;
 
+import android.annotation.SuppressLint;
 import android.opengl.GLES20;
 import android.util.Log;
 
@@ -18,6 +19,7 @@ public class SampleUtils {
     private static final String LOGTAG = "Vuforia_Sample_Applications";
 
 
+    @SuppressLint("LongLogTag")
     static int initShader(int shaderType, String source) {
         int shader = GLES20.glCreateShader(shaderType);
         if (shader != 0) {
@@ -40,6 +42,7 @@ public class SampleUtils {
     }
 
 
+    @SuppressLint("LongLogTag")
     public static int createProgramFromShaderSrc(String vertexShaderSrc,
                                                  String fragmentShaderSrc) {
         int vertShader = initShader(GLES20.GL_VERTEX_SHADER, vertexShaderSrc);
@@ -75,6 +78,7 @@ public class SampleUtils {
     }
 
 
+    @SuppressLint("LongLogTag")
     public static void checkGLError(String op) {
         for (int error = GLES20.glGetError(); error != 0; error = GLES20
                 .glGetError())

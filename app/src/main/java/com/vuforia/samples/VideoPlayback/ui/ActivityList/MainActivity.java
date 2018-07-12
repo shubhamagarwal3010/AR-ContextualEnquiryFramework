@@ -12,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.vuforia.samples.BackgroundTextureAccess.BackgroundTextureAccess;
+import com.vuforia.samples.ImageDisplay.ImageDisplay;
 import com.vuforia.samples.VideoPlayback.R;
 import com.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback;
 
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void viewARImage(View view) {
 
+        Intent intent = new Intent(MainActivity.this, ImageDisplay.class);
+        startActivity(intent);
     }
 
     public void viewARVideo(View view) {

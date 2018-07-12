@@ -53,11 +53,11 @@ import java.util.Vector;
 public class VideoPlayback extends Activity implements
         ImageTrackerManager {
     private static final String LOGTAG = "VideoPlayback";
-    public List<VideoTargetWithResource> targetWithResources;
-    // Movie for the Targets:
-    public static int NUM_TARGETS = 0;
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
+    // Movie for the Targets:
+    public static int NUM_TARGETS = 0;
+    public List<VideoTargetWithResource> targetWithResources;
     UpdateTargetCallback updateTargetCallback;
     Activity mActivity;
     DataSet dataSetStonesAndChips = null;
@@ -606,9 +606,9 @@ public class VideoPlayback extends Activity implements
         return result;
     }
 
-    public int getIndexOfTargetFromTargetName(String name){
-        for(int i=0; i<NUM_TARGETS ;i++){
-            if(targetWithResources.get(i).getTargetName().equals(name))
+    public int getIndexOfTargetFromTargetName(String name) {
+        for (int i = 0; i < NUM_TARGETS; i++) {
+            if (targetWithResources.get(i).getTargetName().equals(name))
                 return i;
         }
         return -1;

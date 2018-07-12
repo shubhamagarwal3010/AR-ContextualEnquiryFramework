@@ -72,6 +72,11 @@
 
         <!--             This is the activity that holds the full screen media player. -->
         <activity
+            android:name="com.vuforia.samples.ImageDisplay.ImageDisplay"
+            android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/SampleAppsTheme" />
+        <activity
             android:name=".app.VideoPlayback.FullscreenPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:exported="false"
