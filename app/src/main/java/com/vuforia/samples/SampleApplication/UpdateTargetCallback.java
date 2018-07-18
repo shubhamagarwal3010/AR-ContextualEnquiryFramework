@@ -176,6 +176,7 @@ public class UpdateTargetCallback implements UpdateCallbackInterface {
 
 
     public void startAR(int camera) {
+
         mCamera = camera;
         SampleApplicationException vuforiaException = null;
 
@@ -247,6 +248,17 @@ public class UpdateTargetCallback implements UpdateCallbackInterface {
                         SampleApplicationException.TRACKERS_DEINITIALIZATION_FAILURE,
                         "Failed to deinitialize trackers");
 
+        }
+    }
+
+    // Resumes Vuforia, restarts the trackers and the camera
+    public void resumeAR() throws SampleApplicationException
+    {
+        // Vuforia-specific resume operation
+        Vuforia.onResume();
+        if (mStarted)
+        {
+            startAR(mCamera);
         }
     }
 

@@ -46,7 +46,7 @@ public class SampleAppRenderer {
     private static final String LOGTAG = "SampleAppRenderer";
     float mNearPlane = -1.0f;
     float mFarPlane = -1.0f;
-    GLTextureUnit videoBackgroundTex = null;
+    GLTextureUnit videoBackgroundTex;
     private RenderingPrimitives mRenderingPrimitives = null;
     private SampleAppRendererControl mRenderingInterface = null;
     private Activity mActivity = null;
@@ -136,6 +136,8 @@ public class SampleAppRenderer {
         }
 
         videoBackgroundTex = new GLTextureUnit();
+        System.out.print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"+videoBackgroundTex);
+
     }
 
     // Main rendering method

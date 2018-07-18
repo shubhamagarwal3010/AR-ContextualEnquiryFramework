@@ -2,7 +2,7 @@ package com.vuforia.samples.SampleApplication.utils;
 
 import java.nio.Buffer;
 
-public class Teapot2D extends MeshObject {
+public class Image extends MeshObject {
 
     private final static double planeVertices[] =
             {
@@ -27,7 +27,7 @@ public class Teapot2D extends MeshObject {
     private Buffer mNormBuff;
     private Buffer mIndBuff;
 
-    public Teapot2D() {
+    public Image() {
         mVertBuff = fillBuffer(planeVertices);
         mTexCoordBuff = fillBuffer(planeTexcoords);
         mNormBuff = fillBuffer(planeNormals);

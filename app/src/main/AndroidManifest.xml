@@ -77,6 +77,11 @@
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
         <activity
+            android:name="com.vuforia.samples.CloudRecognition.CloudReco"
+            android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/SampleAppsTheme" />
+        <activity
             android:name=".app.VideoPlayback.FullscreenPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:exported="false"

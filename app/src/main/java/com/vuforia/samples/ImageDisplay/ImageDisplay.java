@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -15,7 +16,9 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 
 import com.vuforia.CameraDevice;
 import com.vuforia.DataSet;
@@ -45,39 +48,39 @@ import java.util.Vector;
 
 public class ImageDisplay extends Activity implements
         ImageTrackerManager, SampleAppMenuInterface {
+
+    private static final String LOGTAG = "ImageDisplay";
+    LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(this);
+    boolean mIsDroidDevice = false;
+    private UpdateTargetCallback vuforiaAppSession;
+    private DataSet mDataSet = null;
+    private int mStartDatasetsIndex = 0;
+    private int mCurrentDatasetSelectionIndex =0;
+    private int mDatasetsNumber = 0;
+    private ArrayList<String> mDatasetStrings = new ArrayList<String>();
+    // Our OpenGL view:
+    private SampleApplicationGLView mGlView;
+    // Our renderer:
+    private ImageDisplayRenderer mRenderer;
+    private GestureDetector mGestureDetector;
+    // The textures we will use for rendering:
+    private Vector<Texture> mTextures;
+    private boolean mSwitchDatasetAsap = false;
+    private boolean mFlash = false;
+    private boolean mContAutofocus = false;
+    private boolean mExtendedTracking = false;
+    private View mFlashOptionView;
+    private RelativeLayout mUILayout;
+    private SampleAppMenu mSampleAppMenu;
+    // Alert Dialog used to display SDK errors
+    private AlertDialog mErrorDialog;
+    final public static int CMD_BACK = -1;
     final public static int CMD_EXTENDED_TRACKING = 1;
     final public static int CMD_AUTOFOCUS = 2;
     final public static int CMD_FLASH = 3;
     final public static int CMD_CAMERA_FRONT = 4;
     final public static int CMD_CAMERA_REAR = 5;
     final public static int CMD_DATASET_START_INDEX = 6;
-    private static final String LOGTAG = "ImageDisplay";
-    final private static int CMD_BACK = -1;
-    boolean mIsDroidDevice = false;
-    LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(
-            this);
-    private View mFlashOptionView;
-    private RelativeLayout mUILayout;
-    private SampleAppMenu mSampleAppMenu;
-    private boolean mContAutofocus = false;
-    private boolean mExtendedTracking = false;
-    private UpdateTargetCallback vuforiaAppSession;
-    // Our OpenGL view:
-    private SampleApplicationGLView mGlView;
-    private DataSet mDataSet = null;
-    private int mStartDatasetsIndex = 0;
-    private int mDatasetsNumber = 0;
-    private Activity mActivity;
-    private boolean isARInitialized = false;
-    private boolean mSwitchDatasetAsap = false;
-    // Our renderer:
-    private ImageDisplayRenderer mRenderer;
-    private GestureDetector mGestureDetector;
-    // The textures we will use for rendering:
-    private Vector<Texture> mTextures;
-    private ArrayList<String> mDatasetStrings = new ArrayList<String>();
-    // Alert Dialog used to display SDK errors
-    private AlertDialog mErrorDialog;
 
     // Called when the activity first starts or the user navigates back
     // to an activity.
@@ -86,24 +89,19 @@ public class ImageDisplay extends Activity implements
         super.onCreate(savedInstanceState);
 
         vuforiaAppSession = new UpdateTargetCallback(this);
-
-        mActivity = this;
-
+        mDatasetStrings.add("tw_conf_room.xml");
         startLoadingAnimation();
 
         vuforiaAppSession
                 .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        mGestureDetector = new GestureDetector(this, new GestureListener());
 
         // Load any sample specific textures:
         mTextures = new Vector<Texture>();
         loadTextures();
-        /*mDatasetStrings.add("StonesAndChips.xml");
-        mDatasetStrings.add("Tarmac.xml");*/
 
-        mGestureDetector = new GestureDetector(this, new GestureListener());
         mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith(
                 "droid");
-
 
     }
 
@@ -129,14 +127,9 @@ public class ImageDisplay extends Activity implements
     // We want to load specific textures from the APK, which we will later
     // use for rendering.
     private void loadTextures() {
-
-        mTextures.add(Texture.loadTextureFromApk("TextureTeapotBrass.png",
+        mTextures.add(Texture.loadTextureFromApk("alluri.png",
                 getAssets()));
-        mTextures.add(Texture.loadTextureFromApk("TextureTeapotBlue.png",
-                getAssets()));
-        mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png",
-                getAssets()));
-        mTextures.add(Texture.loadTextureFromApk("ImageTargets/Buildings.jpeg",
+        mTextures.add(Texture.loadTextureFromApk("aaron.png",
                 getAssets()));
     }
 
@@ -159,9 +152,10 @@ public class ImageDisplay extends Activity implements
 
     }
 
-    //Tracker loading
+    // Methods to load and destroy tracking data.
     @Override
     public boolean doLoadTrackersData() {
+
         TrackerManager tManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) tManager
                 .getTracker(ObjectTracker.getClassType());
@@ -170,14 +164,15 @@ public class ImageDisplay extends Activity implements
             return false;
         }
         // Create the data sets:
-        mDataSet = objectTracker.createDataSet();
+        if (mDataSet == null)
+            mDataSet = objectTracker.createDataSet();
+
         if (mDataSet == null) {
             Log.d(LOGTAG, "Failed to create a new tracking data.");
             return false;
         }
         // Load the data sets:
-        if (!mDataSet.load("StonesAndChips.xml",
-                STORAGE_TYPE.STORAGE_APPRESOURCE)) {
+        if (!mDataSet.load(mDatasetStrings.get(mCurrentDatasetSelectionIndex), STORAGE_TYPE.STORAGE_APPRESOURCE)) {
             Log.d(LOGTAG, "Failed to load data set.");
             return false;
         }
@@ -187,9 +182,14 @@ public class ImageDisplay extends Activity implements
             return false;
         }
         Log.d(LOGTAG, "Successfully loaded and activated data set.");
+
         int numTrackables = mDataSet.getNumTrackables();
+
         for (int count = 0; count < numTrackables; count++) {
             Trackable trackable = mDataSet.getTrackable(count);
+            if (isExtendedTrackingActive()) {
+                trackable.startExtendedTracking();
+            }
             String name = "Current Dataset : " + trackable.getName();
             trackable.setUserData(name);
             Log.d(LOGTAG, "UserData:Set the following user data "
@@ -197,6 +197,8 @@ public class ImageDisplay extends Activity implements
         }
         return true;
     }
+
+
 
     //Start trackers
     @Override
@@ -243,7 +245,7 @@ public class ImageDisplay extends Activity implements
             return false;
         }
 
-        if (mDataSet != null) {
+        if (mDataSet != null ) {
             if (objectTracker.getActiveDataSet(0) == mDataSet
                     && !objectTracker.deactivateDataSet(mDataSet)) {
                 Log.d(LOGTAG, "Failed to destroy the tracking data set StonesAndChips because the data set could not be deactivated.");
@@ -264,20 +266,26 @@ public class ImageDisplay extends Activity implements
     public boolean doDeinitTrackers() {
         // Indicate if the trackers were deinitialized correctly
         boolean result = true;
-
         TrackerManager tManager = TrackerManager.getInstance();
         tManager.deinitTracker(ObjectTracker.getClassType());
-
         return result;
     }
 
     // Called when the activity will start interacting with the user.
+    @Override
     protected void onResume() {
         Log.d(LOGTAG, "onResume");
         super.onResume();
-        showProgressIndicator(true);
-
-        vuforiaAppSession.onResume();
+        // This is needed for some Droid devices to force portrait
+        if (mIsDroidDevice) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        try {
+            vuforiaAppSession.resumeAR();
+        } catch (SampleApplicationException e) {
+            Log.e(LOGTAG, e.getString());
+        }
 
         // Resume the GL view:
         if (mGlView != null) {
@@ -303,11 +311,11 @@ public class ImageDisplay extends Activity implements
     public void onConfigurationChanged(Configuration config) {
         Log.d(LOGTAG, "onConfigurationChanged");
         super.onConfigurationChanged(config);
-
         vuforiaAppSession.onConfigurationChanged();
     }
 
     // Called when the system is about to start resuming a previous activity.
+    @Override
     protected void onPause() {
         Log.d(LOGTAG, "onPause");
         super.onPause();
@@ -317,14 +325,26 @@ public class ImageDisplay extends Activity implements
             mGlView.onPause();
         }
 
+        // Turn off the flash
+        if (mFlashOptionView != null && mFlash) {
+            // OnCheckedChangeListener is called upon changing the checked state
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                ((Switch) mFlashOptionView).setChecked(false);
+            } else {
+                ((CheckBox) mFlashOptionView).setChecked(false);
+            }
+        }
+
         try {
             vuforiaAppSession.pauseAR();
         } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
+
     }
 
     // The final call you receive before your activity is destroyed.
+    @Override
     protected void onDestroy() {
         Log.d(LOGTAG, "onDestroy");
         super.onDestroy();
@@ -373,7 +393,6 @@ public class ImageDisplay extends Activity implements
             initApplicationAR(); // initilaises rendere and mgl view
 
             mRenderer.setActive(true);
-            isARInitialized = true;
 
             // Now add the GL surface view. It is important
             // that the OpenGL ES surface view gets added
@@ -384,6 +403,7 @@ public class ImageDisplay extends Activity implements
 
             // Sets the UILayout to be drawn in front of the camera
             mUILayout.bringToFront();
+
 
             vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
 
@@ -546,33 +566,34 @@ public class ImageDisplay extends Activity implements
         mSampleAppMenu.attachMenu();
     }
 
-    private class GestureListener extends
-            GestureDetector.SimpleOnGestureListener {
-        // Used to set autofocus one second after a manual focus is triggered
-        private final Handler autofocusHandler = new Handler();
+//Process single tap event to trigger autofocus
+private class GestureListener extends
+        GestureDetector.SimpleOnGestureListener {
+    // Used to set autofocus one second after a manual focus is triggered
+    private final Handler autofocusHandler = new Handler();
 
 
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
-        }
-
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            // Generates a Handler to trigger autofocus
-            // after 1 second
-            autofocusHandler.postDelayed(new Runnable() {
-                public void run() {
-                    boolean result = CameraDevice.getInstance().setFocusMode(
-                            CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
-
-                    if (!result)
-                        Log.e("SingleTapUp", "Unable to trigger focus");
-                }
-            }, 1000L);
-
-            return true;
-        }
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return true;
     }
+
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        // Generates a Handler to trigger autofocus
+        // after 1 second
+        autofocusHandler.postDelayed(new Runnable() {
+            public void run() {
+                boolean result = CameraDevice.getInstance().setFocusMode(
+                        CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
+
+                if (!result)
+                    Log.e("SingleTapUp", "Unable to trigger focus");
+            }
+        }, 1000L);
+
+        return true;
+    }
+}
 }

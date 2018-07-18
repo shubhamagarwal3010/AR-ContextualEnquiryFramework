@@ -11,6 +11,7 @@ public class VideoTargetAndResourceRepository {
         videoTargetsAndResoruces = new ArrayList<>();
         videoTargetsAndResoruces.add(new VideoTargetWithResource("stones", "VideoPlayback/SampleVideo.mp4"));
         videoTargetsAndResoruces.add(new VideoTargetWithResource("chips", "VideoPlayback/Flag_Transparent.mp4"));
+        videoTargetsAndResoruces.add(new VideoTargetWithResource("tarmac", "VideoPlayback/Sample_Tarmac_Video.mp4"));
         return videoTargetsAndResoruces;
     }
 
