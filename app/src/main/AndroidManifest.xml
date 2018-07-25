@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.vuforia.samples.VideoPlayback">
+    package="com.example.stammana.dualaugmentationapp">
     <!--
         The application's compatibility with one or more versions of the Android
         platform.
