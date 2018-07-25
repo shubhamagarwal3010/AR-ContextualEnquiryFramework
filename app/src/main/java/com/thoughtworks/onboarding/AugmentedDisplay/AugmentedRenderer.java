@@ -1,14 +1,19 @@
 package com.thoughtworks.onboarding.AugmentedDisplay;
 
+import android.app.Activity;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRendererControl;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.contract.TargetMetadata;
+import com.thoughtworks.onboarding.ui.ActivityList.BaseActivity;
 import com.thoughtworks.onboarding.utils.Texture;
 import com.vuforia.Device;
+import com.vuforia.ImageTarget;
 import com.vuforia.State;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
@@ -24,7 +29,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class AugmentedRenderer implements GLSurfaceView.Renderer, SampleAppRendererControl {
 
     private static final String LOGTAG = "AugmentedRenderer";
-    public AugmentedDisplay mActivity;
+    public BaseActivity mActivity;
     private ImageDisplayRenderer imageDisplayRenderer;
     private VideoPlaybackRenderer videoPlaybackRenderer;
     SampleAppRenderer mSampleAppRenderer;
@@ -33,7 +38,7 @@ public class AugmentedRenderer implements GLSurfaceView.Renderer, SampleAppRende
     // Video Playback Textures for the two targets
     int videoPlaybackTextureID[] = new int[AugmentedDisplay.NUM_TARGETS];
 
-    public AugmentedRenderer(AugmentedDisplay activity,
+    public AugmentedRenderer(BaseActivity activity,
                              UpdateTargetCallback session) {
         // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting/
         // the device mode AR/VR and stereo mode
@@ -61,7 +66,7 @@ public class AugmentedRenderer implements GLSurfaceView.Renderer, SampleAppRende
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(LOGTAG, "GLRenderer.onSurfaceCreated");
         imageDisplayRenderer.onSurfaceCreated(gl, config, mSampleAppRenderer);
-        videoPlaybackRenderer.onSurfaceCreated(gl, config, mSampleAppRenderer);
+//        videoPlaybackRenderer.onSurfaceCreated(gl, config, mSampleAppRenderer);
     }
 
     // Called when the surface changed size.
@@ -77,9 +82,10 @@ public class AugmentedRenderer implements GLSurfaceView.Renderer, SampleAppRende
     }
 
     // Called to draw the current frame.
+    @Override
     public void onDrawFrame(GL10 gl) {
         imageDisplayRenderer.onDrawFrame(gl, mSampleAppRenderer);
-        videoPlaybackRenderer.onDrawFrame(gl, mSampleAppRenderer);
+//        videoPlaybackRenderer.onDrawFrame(gl, mSampleAppRenderer);
 
     }
 
@@ -111,11 +117,26 @@ public class AugmentedRenderer implements GLSurfaceView.Renderer, SampleAppRende
             System.out.println("Check****");
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
-            if (trackable.getName().equals("alluri") || trackable.getName().equals("aaron")) {
-                imageDisplayRenderer.renderFrame(state, projectionMatrix, mSampleAppRenderer);
+            // The assumption is that we always scan images / static content for AR.
+            // TODO: This might fail if we intend to go with video scanning, change accordingly
+            ImageTarget imageTarget = (ImageTarget) trackable;
+            TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+
+
+            switch (targetMetadata.mediaType) {
+                case IMAGE:
+                    imageDisplayRenderer.renderFrame(state, projectionMatrix, mSampleAppRenderer, targetMetadata);
+                    break;
+                case VIDEO:
+                    videoPlaybackRenderer.renderFrame(state, projectionMatrix, mSampleAppRenderer);
+                    break;
+            }
+
+            /*if (trackable.getName().equals("alluri") || trackable.getName().equals("aaron")) {
+                imageDisplayRenderer.renderFrame(state, projectionMatrix, mSampleAppRenderer, targetMetadata);
             } else {
                 videoPlaybackRenderer.renderFrame(state, projectionMatrix, mSampleAppRenderer);
-            }
+            }*/
 
         }
     }

@@ -10,6 +10,7 @@ countries.
 package com.thoughtworks.onboarding.AugmentedDisplay;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
@@ -22,6 +23,7 @@ import com.thoughtworks.onboarding.AugmentedDisplay.VideoPlayerHelper.MEDIA_TYPE
 import com.thoughtworks.onboarding.DisplayType;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.ui.ActivityList.BaseActivity;
 import com.thoughtworks.onboarding.utils.KeyFrameShaders;
 import com.thoughtworks.onboarding.utils.SampleUtils;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -61,7 +63,7 @@ public class VideoPlaybackRenderer {
     double quadNormalsArray[] = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,};
     short quadIndicesArray[] = {0, 1, 2, 2, 3, 0};
     Buffer quadVertices, quadTexCoords, quadIndices, quadNormals;
-    AugmentedDisplay mActivity;
+    BaseActivity mActivity;
     // Needed to calculate whether a screen tap is inside the target
     Matrix44F modelViewMatrix[] = new Matrix44F[AugmentedDisplay.NUM_TARGETS];
     boolean isTracking[] = new boolean[AugmentedDisplay.NUM_TARGETS];
@@ -101,7 +103,7 @@ public class VideoPlaybackRenderer {
     private Vector<Texture> mTextures;
 
 
-    public VideoPlaybackRenderer(AugmentedDisplay activity,
+    public VideoPlaybackRenderer(BaseActivity activity,
                                  UpdateTargetCallback session, Vec3F[] targetPositiveDimensions, int[] videoPlaybackTextureID) {
 
         this.mActivity = activity;
