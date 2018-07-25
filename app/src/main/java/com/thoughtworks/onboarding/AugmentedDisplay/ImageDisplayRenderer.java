@@ -237,6 +237,15 @@ public class ImageDisplayRenderer {
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
 
+            Texture t = Texture.loadTextureFromUrl(mActivity, "https://media.licdn.com/media-proxy/ext?w=800&h=800&hash=Jgh%2BZRv40pnmDYF%2FMX%2F3%2FqdxaBw%3D&ora=1%2CaFBCTXdkRmpGL2lvQUFBPQ%2CxAVta5g-0R6nlh8Tw1It6a2FowGz60oISIfYC2G8G2f1spyfNT-tdoDSfLuhsgUbey8DhlI_IfnwEXO5H9D2SvzpHrg17_GTTtWcTggQfzEEoEUZ5uUqOlx3kdKpF-qtMWsc8e1-TwyJC73iVV8vLQll8fq4GKH6GWxUi3WUbO71GJlCE-dQptRWy1ll9-_JAp0_3al__nlukQ-S24zDID44zKXmKUWsFlk6GEDwIsgUkoag-Ri3kR3Qv2P2nZaXAKWBAPQyh0iA1cfefCG5vyFD6m4H4VIgnplmIA");
+
+            GLES20.glGenTextures(1, t.mTextureID, 0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
+                    GLES20.GL_UNSIGNED_BYTE, t.mData);
+
             if (!mActivity.isExtendedTrackingActive()) {
                 GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT,
                         false, 0, projectingImage.getVertices());
@@ -251,8 +260,9 @@ public class ImageDisplayRenderer {
 
                 // activate texture from repository, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                        mTextures.get(currentTarget).mTextureID[0]);
+                Log.i("TEST", "textureId: " + mTextures.get(currentTarget).mTextureID[0]);
+                Log.i("TEST", "dynamic textureId: " + t.mTextureID[0]);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
                 GLES20.glUniform1i(texSampler2DHandle, 0);
 
                 // pass the model view matrix to the shader
@@ -282,8 +292,10 @@ public class ImageDisplayRenderer {
                 GLES20.glEnableVertexAttribArray(textureCoordHandle);
 
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+
+                Log.i("TEST", "extended tracking textureId: " + mTextures.get(3).mTextureID[0]);
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                        mTextures.get(3).mTextureID[0]);
+                        t.mTextureID[0]);
                 GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
                         modelViewProjection, 0);
                 GLES20.glUniform1i(texSampler2DHandle, 0);
