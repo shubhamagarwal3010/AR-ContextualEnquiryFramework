@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.stammana.dualaugmentationapp">
+    package="com.thoughtworks.onboarding">
     <!--
         The application's compatibility with one or more versions of the Android
         platform.
@@ -66,7 +66,7 @@
         </activity>
 
         <activity
-            android:name="com.example.stammana.dualaugmentationapp.AugmentedDisplay.AugmentedDisplay"
+            android:name=".AugmentedDisplay.AugmentedDisplay"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
