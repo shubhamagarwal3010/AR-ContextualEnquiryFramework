@@ -262,7 +262,6 @@ public class ImageDisplayRenderer {
             GLES20.glDisableVertexAttribArray(normalHandle);
             GLES20.glDisableVertexAttribArray(textureCoordHandle);
 
-
             SampleUtils.checkGLError("Render Frame");
 
         }

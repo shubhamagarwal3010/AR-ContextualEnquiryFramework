@@ -9,16 +9,20 @@ countries.
 
 package com.thoughtworks.onboarding.utils;
 
+import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import com.bumptech.glide.Glide;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.concurrent.ExecutionException;
 
 
 // Support class for the Vuforia samples applications.
@@ -55,6 +59,28 @@ public class Texture {
             Log.e(LOGTAG, "Failed to log texture '" + fileName + "' from APK");
             Log.i(LOGTAG, e.getMessage());
             return null;
+        }
+    }
+
+    public static Texture loadTextureFromUrl(Activity activity, String url) {
+        try {
+
+            Bitmap bitMap = Glide.
+                    with(activity).
+                    asBitmap().load(url).
+                    into(100, 100). // Width and height
+                    get();
+
+            int[] data = new int[bitMap.getWidth() * bitMap.getHeight()];
+            bitMap.getPixels(data, 0, bitMap.getWidth(), 0, 0,
+                    bitMap.getWidth(), bitMap.getHeight());
+
+            return loadTextureFromIntBuffer(data, bitMap.getWidth(),
+                    bitMap.getHeight());
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+
         }
     }
 
