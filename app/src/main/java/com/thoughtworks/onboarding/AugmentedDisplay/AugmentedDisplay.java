@@ -16,10 +16,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -36,9 +33,6 @@ import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.TargetAndResourceRepository;
 import com.thoughtworks.onboarding.TargetWithResource;
-import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenu;
-import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenuGroup;
-import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenuInterface;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -60,13 +54,7 @@ import java.util.Vector;
 
 // The AR activity for the AugmentedDisplay sample.
 public class AugmentedDisplay extends Activity implements
-        ImageTrackerManager, SampleAppMenuInterface {
-    final public static int CMD_EXTENDED_TRACKING = 1;
-    final public static int CMD_AUTOFOCUS = 2;
-    final public static int CMD_FLASH = 3;
-    final public static int CMD_CAMERA_FRONT = 4;
-    final public static int CMD_CAMERA_REAR = 5;
-    final public static int CMD_DATASET_START_INDEX = 6;
+        ImageTrackerManager {
     private static final String LOGTAG = "AugmentedDisplay";
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
@@ -79,7 +67,6 @@ public class AugmentedDisplay extends Activity implements
     boolean mIsInitialized = false;
     LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(
             this);
-    boolean mIsDroidDevice = false;
     // Helpers to detect events such as double tapping:
     private GestureDetector gestureDetector = null;
     private VideoPlayerHelper mVideoPlayerHelper[] = null;
@@ -99,8 +86,6 @@ public class AugmentedDisplay extends Activity implements
     private AlertDialog mErrorDialog;
     //Datasets
     private ArrayList<String> mDatasetStrings = new ArrayList<String>();
-    private View mFlashOptionView;
-    private SampleAppMenu mSampleAppMenu;
     private boolean mSwitchDatasetAsap = false;
 
     public AugmentedDisplay() {
@@ -142,9 +127,6 @@ public class AugmentedDisplay extends Activity implements
         for (int i = 0; i < NUM_TARGETS; i++) {
             mVideoPlayerHelper[i] = new VideoPlayerHelper(this);
         }
-
-        mIsDroidDevice = Build.MODEL.toLowerCase().startsWith(
-                "droid");
     }
 
     // We want to load specific textures from the APK, which we will later
@@ -164,12 +146,6 @@ public class AugmentedDisplay extends Activity implements
     protected void onResume() {
         Log.d(LOGTAG, "onResume");
         super.onResume();
-
-        // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
 
         onResumeVideo();
         onResumeImage();
@@ -387,8 +363,6 @@ public class AugmentedDisplay extends Activity implements
     // We do not handle the touch event here, we just forward it to the
     // gesture detector
     public boolean onTouchEvent(MotionEvent event) {
-        if (mSampleAppMenu != null && mSampleAppMenu.processEvent(event))
-            return true;
         return gestureDetector.onTouchEvent(event);
     }
 
@@ -566,13 +540,6 @@ public class AugmentedDisplay extends Activity implements
             updateTargetCallback.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
 
             mIsInitialized = true;
-
-            DisplayMetrics metrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-            mSampleAppMenu = new SampleAppMenu(this, this, "Background Texture",
-                    mGlView, mUILayout, null);
-            setSampleAppMenuSettings();
         } else {
             Log.e(LOGTAG, exception.getString());
             showInitializationErrorMessage(exception.getString());
@@ -693,52 +660,5 @@ public class AugmentedDisplay extends Activity implements
                 return new Pair(i, targetWithResources.get(i).getDisplayType());
         }
         return new Pair(-1, null);
-    }
-
-    // This method sets the menu's settings
-    private void setSampleAppMenuSettings() {
-        SampleAppMenuGroup group;
-
-        group = mSampleAppMenu.addGroup("", false);
-        group.addTextItem(getString(R.string.menu_back), -1);
-
-        group = mSampleAppMenu.addGroup("", true);
-        group.addSelectionItem(getString(R.string.menu_extended_tracking),
-                CMD_EXTENDED_TRACKING, false);
-        boolean mContAutofocus = false;
-        group.addSelectionItem(getString(R.string.menu_contAutofocus),
-                CMD_AUTOFOCUS, mContAutofocus);
-        mFlashOptionView = group.addSelectionItem(
-                getString(R.string.menu_flash), CMD_FLASH, false);
-
-        Camera.CameraInfo ci = new Camera.CameraInfo();
-        boolean deviceHasFrontCamera = false;
-        boolean deviceHasBackCamera = false;
-        for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
-            Camera.getCameraInfo(i, ci);
-            if (ci.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
-                deviceHasFrontCamera = true;
-            else if (ci.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
-                deviceHasBackCamera = true;
-        }
-
-        if (deviceHasBackCamera && deviceHasFrontCamera) {
-            group = mSampleAppMenu.addGroup(getString(R.string.menu_camera),
-                    true);
-            group.addRadioItem(getString(R.string.menu_camera_front),
-                    CMD_CAMERA_FRONT, false);
-            group.addRadioItem(getString(R.string.menu_camera_back),
-                    CMD_CAMERA_REAR, true);
-        }
-
-        group = mSampleAppMenu
-                .addGroup(getString(R.string.menu_datasets), true);
-        int mStartDatasetsIndex = CMD_DATASET_START_INDEX;
-        int mDatasetsNumber = mDatasetStrings.size();
-
-        group.addRadioItem("Stones & Chips", mStartDatasetsIndex, true);
-        group.addRadioItem("Tarmac", mStartDatasetsIndex + 1, false);
-
-        mSampleAppMenu.attachMenu();
     }
 }

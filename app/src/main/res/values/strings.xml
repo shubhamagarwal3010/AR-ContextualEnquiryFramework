@@ -14,15 +14,6 @@
     <string name="INIT_LICENSE_ERROR_CANCELED_KEY">This app license key has been canceled and may no longer be used. Please get a new license key.</string>
     <string name="INIT_LICENSE_ERROR_PRODUCT_TYPE_MISMATCH">Vuforia App key is not valid for this product. Please get a valid key, by logging into your account at developer.vuforia.com and choosing the right product type during project creation.</string>
     <string name="INIT_LICENSE_ERROR_UNKNOWN_ERROR">Failed to initialize Vuforia.</string>
-    <string name="menu_back">About</string>
-
-    <string name="menu_extended_tracking">Extended Tracking</string>
-    <string name="menu_flash">Flash</string>
-    <string name="menu_contAutofocus">Autofocus</string>
-    <string name="menu_datasets">DATASETS</string>
-    <string name="menu_camera">CAMERA</string>
-    <string name="menu_camera_front">Front</string>
-    <string name="menu_camera_back">Rear</string>
 
     =
 
