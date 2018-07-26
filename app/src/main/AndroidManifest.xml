@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.thoughtworks.onboarding">
     <!--
         The application's compatibility with one or more versions of the Android
@@ -70,6 +69,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
-        </application>
+    </application>
 
 </manifest>

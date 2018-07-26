@@ -27,12 +27,9 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.CheckBox;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 
 import com.thoughtworks.onboarding.AugmentedDisplay.VideoPlayerHelper.MEDIA_STATE;
-import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
@@ -63,16 +60,16 @@ import java.util.Vector;
 
 // The AR activity for the AugmentedDisplay sample.
 public class AugmentedDisplay extends Activity implements
-        ImageTrackerManager,SampleAppMenuInterface {
-    private static final String LOGTAG = "AugmentedDisplay";
-    final private static int CMD_BACK = -1;
-    final private static int CMD_FULLSCREEN_VIDEO = 1;
+        ImageTrackerManager, SampleAppMenuInterface {
     final public static int CMD_EXTENDED_TRACKING = 1;
     final public static int CMD_AUTOFOCUS = 2;
     final public static int CMD_FLASH = 3;
     final public static int CMD_CAMERA_FRONT = 4;
     final public static int CMD_CAMERA_REAR = 5;
     final public static int CMD_DATASET_START_INDEX = 6;
+    private static final String LOGTAG = "AugmentedDisplay";
+    final private static int CMD_BACK = -1;
+    final private static int CMD_FULLSCREEN_VIDEO = 1;
     // Movie for the Targets:
     public static int NUM_TARGETS = 0;
     public List<TargetWithResource> targetWithResources;
@@ -80,6 +77,9 @@ public class AugmentedDisplay extends Activity implements
     Activity mActivity;
     DataSet mDataSet = null;
     boolean mIsInitialized = false;
+    LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(
+            this);
+    boolean mIsDroidDevice = false;
     // Helpers to detect events such as double tapping:
     private GestureDetector gestureDetector = null;
     private VideoPlayerHelper mVideoPlayerHelper[] = null;
@@ -95,21 +95,11 @@ public class AugmentedDisplay extends Activity implements
     private Vector<Texture> mTextures;
     private RelativeLayout mUILayout;
     private boolean mPlayFullscreenVideo = false;
-    LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(
-            this);
     // Alert Dialog used to display SDK errors
     private AlertDialog mErrorDialog;
-    boolean mIsDroidDevice = false;
     //Datasets
     private ArrayList<String> mDatasetStrings = new ArrayList<String>();
-    private int mCurrentDatasetSelectionIndex = 0;
-    private int mStartDatasetsIndex = 0;
-    private int mDatasetsNumber = 0;
-    //Image
-    private boolean mFlash = false;
     private View mFlashOptionView;
-    private boolean mExtendedTracking = false;
-    private boolean mContAutofocus = false;
     private SampleAppMenu mSampleAppMenu;
     private boolean mSwitchDatasetAsap = false;
 
@@ -186,11 +176,7 @@ public class AugmentedDisplay extends Activity implements
     }
 
     private void onResumeImage() {
-        try {
-            updateTargetCallback.resumeAR();
-        } catch (SampleApplicationException e) {
-            Log.e(LOGTAG, e.getString());
-        }
+        updateTargetCallback.resumeAR();
 
         // Resume the GL view:
         if (mGlView != null) {
@@ -261,25 +247,8 @@ public class AugmentedDisplay extends Activity implements
         }
 
         onPauseVideo();
-        onPauseImage();
 
-        try {
-            updateTargetCallback.pauseAR();
-        } catch (SampleApplicationException e) {
-            Log.e(LOGTAG, e.getString());
-        }
-    }
-
-    private void onPauseImage() {
-        // Turn off the flash
-        if (mFlashOptionView != null && mFlash) {
-            // OnCheckedChangeListener is called upon changing the checked state
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                ((Switch) mFlashOptionView).setChecked(false);
-            } else {
-                ((CheckBox) mFlashOptionView).setChecked(false);
-            }
-        }
+        updateTargetCallback.pauseAR();
     }
 
     private void onPauseVideo() {
@@ -385,14 +354,14 @@ public class AugmentedDisplay extends Activity implements
         /*if (displayType== DisplayType.VIDEO)
             initApplicationARVideo();
         else*/
-            initApplicationARVideo();
+        initApplicationARVideo();
 
     }
 
     private void initApplicationARImage() {
         /*mRenderer = new AugmentedRenderer(this, updateTargetCallback);
         mRenderer.mActivity = this;*/
-    //    mRenderer.setTextures(mTextures, DisplayType.IMAGE);
+        //    mRenderer.setTextures(mTextures, DisplayType.IMAGE);
         mGlView.setRenderer(mRenderer);
     }
 
@@ -464,6 +433,7 @@ public class AugmentedDisplay extends Activity implements
         }
 
         // Load the data sets:
+        int mCurrentDatasetSelectionIndex = 0;
         if (!mDataSet.load(mDatasetStrings.get(mCurrentDatasetSelectionIndex), STORAGE_TYPE.STORAGE_APPRESOURCE)) {
             Log.d(LOGTAG, "Failed to load data set.");
             return false;
@@ -478,18 +448,16 @@ public class AugmentedDisplay extends Activity implements
         Log.d(LOGTAG, "Successfully loaded and activated data set.");
 
 //        if (displayType == DisplayType.IMAGE) {
-            int numTrackables = mDataSet.getNumTrackables();
+        int numTrackables = mDataSet.getNumTrackables();
 
-            for (int count = 0; count < numTrackables; count++) {
-                Trackable trackable = mDataSet.getTrackable(count);
-                if (isExtendedTrackingActive()) {
-                    trackable.startExtendedTracking();
-                }
-                String name = "Current Dataset : " + trackable.getName();
-                trackable.setUserData(name);
-                Log.d(LOGTAG, "UserData:Set the following user data "
-                        + (String) trackable.getUserData());
-            }
+        for (int count = 0; count < numTrackables; count++) {
+            Trackable trackable = mDataSet.getTrackable(count);
+
+            String name = "Current Dataset : " + trackable.getName();
+            trackable.setUserData(name);
+            Log.d(LOGTAG, "UserData:Set the following user data "
+                    + trackable.getUserData());
+        }
         //}
         return true;
     }
@@ -562,14 +530,12 @@ public class AugmentedDisplay extends Activity implements
 
     @Override
     public boolean doDeinitTrackers() {
-        // Indicate if the trackers were deinitialized correctly
-        boolean result = true;
 
         // Deinit the image tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
         trackerManager.deinitTracker(ObjectTracker.getClassType());
 
-        return result;
+        return true;
     }
 
     @Override
@@ -601,12 +567,12 @@ public class AugmentedDisplay extends Activity implements
 
             mIsInitialized = true;
 
-                DisplayMetrics metrics = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-                mSampleAppMenu = new SampleAppMenu(this, this, "Background Texture",
-                        mGlView, mUILayout, null);
-                setSampleAppMenuSettings();
+            mSampleAppMenu = new SampleAppMenu(this, this, "Background Texture",
+                    mGlView, mUILayout, null);
+            setSampleAppMenuSettings();
         } else {
             Log.e(LOGTAG, exception.getString());
             showInitializationErrorMessage(exception.getString());
@@ -681,27 +647,24 @@ public class AugmentedDisplay extends Activity implements
 
     @Override
     public void onVuforiaUpdate(State state) {
-            if (mSwitchDatasetAsap) {
-                mSwitchDatasetAsap = false;
-                TrackerManager tm = TrackerManager.getInstance();
-                ObjectTracker ot = (ObjectTracker) tm.getTracker(ObjectTracker
-                        .getClassType());
-                if (ot == null || mDataSet == null
-                    /*    || ot.getActiveDataSet() == null*/) {
-                    Log.d(LOGTAG, "Failed to swap datasets");
-                    return;
-                }
-
-                doUnloadTrackersData();
-                doLoadTrackersData();
+        if (mSwitchDatasetAsap) {
+            mSwitchDatasetAsap = false;
+            TrackerManager tm = TrackerManager.getInstance();
+            ObjectTracker ot = (ObjectTracker) tm.getTracker(ObjectTracker
+                    .getClassType());
+            if (ot == null || mDataSet == null
+                /*    || ot.getActiveDataSet() == null*/) {
+                Log.d(LOGTAG, "Failed to swap datasets");
+                return;
             }
+
+            doUnloadTrackersData();
+            doLoadTrackersData();
+        }
     }
 
 
     public boolean menuProcess(int command) {
-
-        boolean result = true;
-
         switch (command) {
             case CMD_BACK:
                 finish();
@@ -720,10 +683,8 @@ public class AugmentedDisplay extends Activity implements
                     }
                 }
                 break;
-
         }
-
-        return result;
+        return true;
     }
 
     public Pair getIndexOfTargetFromTargetName(String name) {
@@ -731,11 +692,7 @@ public class AugmentedDisplay extends Activity implements
             if (targetWithResources.get(i).getTargetName().equals(name))
                 return new Pair(i, targetWithResources.get(i).getDisplayType());
         }
-        return new Pair(-1,null);
-    }
-
-    boolean isExtendedTrackingActive() {
-        return mExtendedTracking;
+        return new Pair(-1, null);
     }
 
     // This method sets the menu's settings
@@ -748,6 +705,7 @@ public class AugmentedDisplay extends Activity implements
         group = mSampleAppMenu.addGroup("", true);
         group.addSelectionItem(getString(R.string.menu_extended_tracking),
                 CMD_EXTENDED_TRACKING, false);
+        boolean mContAutofocus = false;
         group.addSelectionItem(getString(R.string.menu_contAutofocus),
                 CMD_AUTOFOCUS, mContAutofocus);
         mFlashOptionView = group.addSelectionItem(
@@ -775,8 +733,8 @@ public class AugmentedDisplay extends Activity implements
 
         group = mSampleAppMenu
                 .addGroup(getString(R.string.menu_datasets), true);
-        mStartDatasetsIndex = CMD_DATASET_START_INDEX;
-        mDatasetsNumber = mDatasetStrings.size();
+        int mStartDatasetsIndex = CMD_DATASET_START_INDEX;
+        int mDatasetsNumber = mDatasetStrings.size();
 
         group.addRadioItem("Stones & Chips", mStartDatasetsIndex, true);
         group.addRadioItem("Tarmac", mStartDatasetsIndex + 1, false);

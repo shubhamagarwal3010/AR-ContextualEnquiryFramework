@@ -25,13 +25,13 @@ public class AugmentedRenderer implements GLSurfaceView.Renderer, SampleAppRende
 
     private static final String LOGTAG = "AugmentedRenderer";
     public AugmentedDisplay mActivity;
-    private ImageDisplayRenderer imageDisplayRenderer;
-    private VideoPlaybackRenderer videoPlaybackRenderer;
     SampleAppRenderer mSampleAppRenderer;
     // Trackable dimensions
     Vec3F targetPositiveDimensions[] = new Vec3F[AugmentedDisplay.NUM_TARGETS];
     // Video Playback Textures for the two targets
     int videoPlaybackTextureID[] = new int[AugmentedDisplay.NUM_TARGETS];
+    private ImageDisplayRenderer imageDisplayRenderer;
+    private VideoPlaybackRenderer videoPlaybackRenderer;
 
     public AugmentedRenderer(AugmentedDisplay activity,
                              UpdateTargetCallback session) {

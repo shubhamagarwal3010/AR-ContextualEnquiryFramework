@@ -121,7 +121,7 @@ public class VideoPlaybackRenderer {
         mLoadRequested = new boolean[AugmentedDisplay.NUM_TARGETS];
         mTexCoordTransformationMatrix = new float[AugmentedDisplay.NUM_TARGETS][16];
 
-        this.targetPositiveDimensions=targetPositiveDimensions;
+        this.targetPositiveDimensions = targetPositiveDimensions;
         this.videoPlaybackTextureID = videoPlaybackTextureID;
 
         // Initialize the arrays to default values
@@ -300,7 +300,7 @@ public class VideoPlaybackRenderer {
     }
 
 
-    public void setActive(boolean active,SampleAppRenderer mSampleAppRenderer) {
+    public void setActive(boolean active, SampleAppRenderer mSampleAppRenderer) {
         mIsActive = active;
 
         if (mIsActive)
@@ -448,7 +448,7 @@ public class VideoPlaybackRenderer {
         // Renders video background replacing Re,nderer.DrawVideoBackground()
         mSampleAppRenderer.renderVideoBackground();
 
-       GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
         // We must detect if background reflection is active and adjust the
         // culling direction.
@@ -478,7 +478,7 @@ public class VideoPlaybackRenderer {
 
             ImageTarget imageTarget = (ImageTarget) trackableResult
                     .getTrackable();
-            System.out.println("in render frame of video:"+trackableResult.getTrackable().getName());
+            System.out.println("in render frame of video:" + trackableResult.getTrackable().getName());
 
 //
 //            int currentTarget;
@@ -831,7 +831,7 @@ public class VideoPlaybackRenderer {
 
     void setStatus(int target, int value) {
         // Transform the value passed from java to our own values
-        Log.d(LOGTAG,"Target: " +target + " , Value: "+value);
+        Log.d(LOGTAG, "Target: " + target + " , Value: " + value);
         switch (value) {
             case 0:
                 currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.REACHED_END;

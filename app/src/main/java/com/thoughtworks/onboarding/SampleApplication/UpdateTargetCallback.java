@@ -252,19 +252,17 @@ public class UpdateTargetCallback implements UpdateCallbackInterface {
     }
 
     // Resumes Vuforia, restarts the trackers and the camera
-    public void resumeAR() throws SampleApplicationException
-    {
+    public void resumeAR() {
         // Vuforia-specific resume operation
         Vuforia.onResume();
-        if (mStarted)
-        {
+        if (mStarted) {
             startAR(mCamera);
         }
     }
 
 
     // Pauses Vuforia and stops the camera
-    public void pauseAR() throws SampleApplicationException {
+    public void pauseAR() {
         if (mStarted) {
             stopCamera();
         }

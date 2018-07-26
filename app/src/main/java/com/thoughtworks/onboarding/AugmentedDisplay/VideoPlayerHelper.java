@@ -207,20 +207,16 @@ public class VideoPlayerHelper implements OnPreparedListener,
 
     // Indicates whether the movie can be played on a texture
     public boolean isPlayableOnTexture() {
-        if ((mVideoType == MEDIA_TYPE.ON_TEXTURE)
-                || (mVideoType == MEDIA_TYPE.ON_TEXTURE_FULLSCREEN))
-            return true;
+        return (mVideoType == MEDIA_TYPE.ON_TEXTURE)
+                || (mVideoType == MEDIA_TYPE.ON_TEXTURE_FULLSCREEN);
 
-        return false;
     }
 
     // Indicates whether the movie can be played fullscreen
     public boolean isPlayableFullscreen() {
-        if ((mVideoType == MEDIA_TYPE.FULLSCREEN)
-                || (mVideoType == MEDIA_TYPE.ON_TEXTURE_FULLSCREEN))
-            return true;
+        return (mVideoType == MEDIA_TYPE.FULLSCREEN)
+                || (mVideoType == MEDIA_TYPE.ON_TEXTURE_FULLSCREEN);
 
-        return false;
     }
 
     // Return the current status of the movie such as Playing, Paused or Not

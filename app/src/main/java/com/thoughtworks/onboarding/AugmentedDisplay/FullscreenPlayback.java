@@ -169,7 +169,7 @@ public class FullscreenPlayback extends Activity implements OnPreparedListener,
     // This is called when we need to prepare the view for the media player
     protected void prepareViewForMediaPlayer() {
         // Create the view:
-        mVideoView = (VideoView) findViewById(R.id.surface_view);
+        mVideoView = findViewById(R.id.surface_view);
 
         // The orientation was passed as an extra by the launching activity:
         setRequestedOrientation(mRequestedOrientation);

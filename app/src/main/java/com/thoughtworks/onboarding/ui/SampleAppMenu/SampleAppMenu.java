@@ -79,11 +79,11 @@ public class SampleAppMenu {
                 R.layout.sample_app_menu_layer, null, false);
         parentView.addView(mParentMenuView);
 
-        mMovableListView = (LinearLayout) mParentMenuView
+        mMovableListView = mParentMenuView
                 .findViewById(R.id.settings_menu);
         mMovableListView.setBackgroundColor(Color.WHITE);
 
-        TextView title = (TextView) mMovableListView
+        TextView title = mMovableListView
                 .findViewById(R.id.settings_menu_title);
         title.setText(menuTitle);
 

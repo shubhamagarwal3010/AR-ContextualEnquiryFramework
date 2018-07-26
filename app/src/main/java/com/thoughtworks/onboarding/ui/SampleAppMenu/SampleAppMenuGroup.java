@@ -88,7 +88,7 @@ public class SampleAppMenuGroup {
 
         mFont = Typeface.create("sans-serif", Typeface.NORMAL);
 
-        TextView titleView = (TextView) mLayout
+        TextView titleView = mLayout
                 .findViewById(R.id.menu_group_title);
         titleView.setText(title);
         titleView.setTextSize(mActivity.getResources().getDimension(

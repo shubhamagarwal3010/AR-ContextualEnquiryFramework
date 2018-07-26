@@ -288,10 +288,7 @@ public class SampleAppRenderer {
             boolean isActivityPortrait;
             Configuration config = mActivity.getResources().getConfiguration();
 
-            if (config.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                isActivityPortrait = false;
-            else
-                isActivityPortrait = true;
+            isActivityPortrait = config.orientation != Configuration.ORIENTATION_LANDSCAPE;
 
             vbMesh = new BackgroundMesh(10, 10);
             if (!vbMesh.isValid()) {
