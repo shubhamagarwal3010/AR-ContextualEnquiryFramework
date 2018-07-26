@@ -31,21 +31,16 @@ public final class LoadingDialogHandler extends Handler {
 
 
     public void handleMessage(Message msg) {
+        Activity imageTargets = mActivity.get();
+        if (imageTargets == null) {
+            return;
+        }
 
-        try {
-            Activity imageTargets = mActivity.get();
-            if (imageTargets == null) {
-                return;
-            }
+        if (msg.what == SHOW_LOADING_DIALOG) {
+            mLoadingDialogContainer.setVisibility(View.VISIBLE);
 
-            if (msg.what == SHOW_LOADING_DIALOG) {
-                mLoadingDialogContainer.setVisibility(View.VISIBLE);
-
-            } else if (msg.what == HIDE_LOADING_DIALOG) {
-                mLoadingDialogContainer.setVisibility(View.GONE);
-            }
-        } catch (Exception e) {
-            // TODO: ignoring temporarily
+        } else if (msg.what == HIDE_LOADING_DIALOG) {
+            mLoadingDialogContainer.setVisibility(View.GONE);
         }
     }
 

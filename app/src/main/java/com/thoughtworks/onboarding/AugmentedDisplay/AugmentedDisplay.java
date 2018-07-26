@@ -33,12 +33,12 @@ import android.widget.Switch;
 
 import com.thoughtworks.onboarding.AugmentedDisplay.VideoPlayerHelper.MEDIA_STATE;
 import com.thoughtworks.onboarding.R;
+import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.TargetAndResourceRepository;
 import com.thoughtworks.onboarding.TargetWithResource;
-import com.thoughtworks.onboarding.ui.ActivityList.BaseActivity;
 import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenu;
 import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenuGroup;
 import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenuInterface;
@@ -51,7 +51,6 @@ import com.vuforia.HINT;
 import com.vuforia.ObjectTracker;
 import com.vuforia.STORAGE_TYPE;
 import com.vuforia.State;
-import com.vuforia.TargetFinder;
 import com.vuforia.Trackable;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
@@ -63,12 +62,8 @@ import java.util.Vector;
 
 
 // The AR activity for the AugmentedDisplay sample.
-public class AugmentedDisplay extends BaseActivity implements
+public class AugmentedDisplay extends Activity implements
         ImageTrackerManager,SampleAppMenuInterface {
-
-    private static final String CLOUD_DB_ACCESS_KEY = "154a01ae8b006ed397af3631174f0829575e90fe";
-    private static final String CLOUD_DB_SECRET_KEY = "efc010d47c27f49a481185565a0656ff07b1b7cb";
-
     private static final String LOGTAG = "AugmentedDisplay";
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
@@ -459,82 +454,44 @@ public class AugmentedDisplay extends BaseActivity implements
                     "Failed to load tracking data set because the ObjectTracker has not been initialized.");
             return false;
         }
-        /*if (setupLocalDeviceTargets(objectTracker)) {
-            // Failed to load data set
-            return false;
-        }*/
 
-        return setupCloudDeviceTargets(objectTracker);
-    }
-
-    private boolean setupCloudDeviceTargets(ObjectTracker objectTracker) {
-        // Initialize target finder:
-        TargetFinder targetFinder = objectTracker.getTargetFinder();
-
-        // Start initialization:
-        if (targetFinder.startInit(CLOUD_DB_ACCESS_KEY, CLOUD_DB_SECRET_KEY)) {
-            targetFinder.waitUntilInitFinished();
-        }
-
-        int resultCode = targetFinder.getInitState();
-        if (resultCode != TargetFinder.INIT_SUCCESS) {
-            /*if (resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION) {
-                mInitErrorCode = UPDATE_ERROR_NO_NETWORK_CONNECTION;
-            } else {
-                mInitErrorCode = UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
-            }*/
-
-            Log.e(LOGTAG, "Failed to initialize target finder.");
-            throw new RuntimeException("Failed to setup cloud targets!");
-//            return false;
-        }
-
-        // Use the following calls if you would like to customize the color of
-        // the UI
-        // targetFinder->setUIScanlineColor(1.0, 0.0, 0.0);
-        // targetFinder->setUIPointColor(0.0, 0.0, 1.0);
-
-        return true;
-    }
-
-    private boolean setupLocalDeviceTargets(ObjectTracker objectTracker) {
         // Create the data sets:
         if (mDataSet == null)
             mDataSet = objectTracker.createDataSet();
         if (mDataSet == null) {
             Log.d(LOGTAG, "Failed to create a new tracking data.");
-            return true;
+            return false;
         }
 
         // Load the data sets:
         if (!mDataSet.load(mDatasetStrings.get(mCurrentDatasetSelectionIndex), STORAGE_TYPE.STORAGE_APPRESOURCE)) {
             Log.d(LOGTAG, "Failed to load data set.");
-            return true;
+            return false;
         }
 
         // Activate the data set:
         if (!objectTracker.activateDataSet(mDataSet)) {
             Log.d(LOGTAG, "Failed to activate data set.");
-            return true;
+            return false;
         }
 
         Log.d(LOGTAG, "Successfully loaded and activated data set.");
 
 //        if (displayType == DisplayType.IMAGE) {
-        int numTrackables = mDataSet.getNumTrackables();
+            int numTrackables = mDataSet.getNumTrackables();
 
-        for (int count = 0; count < numTrackables; count++) {
-            Trackable trackable = mDataSet.getTrackable(count);
-            if (isExtendedTrackingActive()) {
-                trackable.startExtendedTracking();
+            for (int count = 0; count < numTrackables; count++) {
+                Trackable trackable = mDataSet.getTrackable(count);
+                if (isExtendedTrackingActive()) {
+                    trackable.startExtendedTracking();
+                }
+                String name = "Current Dataset : " + trackable.getName();
+                trackable.setUserData(name);
+                Log.d(LOGTAG, "UserData:Set the following user data "
+                        + (String) trackable.getUserData());
             }
-            String name = "Current Dataset : " + trackable.getName();
-            trackable.setUserData(name);
-            Log.d(LOGTAG, "UserData:Set the following user data "
-                    + (String) trackable.getUserData());
-        }
         //}
-        return false;
+        return true;
     }
 
     @Override
@@ -570,13 +527,6 @@ public class AugmentedDisplay extends BaseActivity implements
 
     @Override
     public boolean doUnloadTrackersData() {
-//        return unloadLocalTrackers();
-
-        // By default true for cloud trackers
-        return true;
-    }
-
-    private boolean unloadLocalTrackers() {
         // Indicate if the trackers were unloaded correctly
         boolean result = true;
 
@@ -782,6 +732,10 @@ public class AugmentedDisplay extends BaseActivity implements
                 return new Pair(i, targetWithResources.get(i).getDisplayType());
         }
         return new Pair(-1,null);
+    }
+
+    boolean isExtendedTrackingActive() {
+        return mExtendedTracking;
     }
 
     // This method sets the menu's settings

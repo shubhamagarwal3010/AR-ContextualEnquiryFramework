@@ -9,7 +9,6 @@ countries.
 package com.thoughtworks.onboarding.AugmentedDisplay;
 
 
-import android.app.Activity;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -18,8 +17,6 @@ import android.util.Pair;
 import com.thoughtworks.onboarding.DisplayType;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
-import com.thoughtworks.onboarding.contract.TargetMetadata;
-import com.thoughtworks.onboarding.ui.ActivityList.BaseActivity;
 import com.thoughtworks.onboarding.utils.CubeShaders;
 import com.thoughtworks.onboarding.utils.Image;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
@@ -46,7 +43,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class ImageDisplayRenderer {
     private static final String LOGTAG = "IMDRenderer";
     private static final float OBJECT_SCALE_FLOAT = 0.01f;
-    public BaseActivity mActivity;
+    public AugmentedDisplay mActivity;
     UpdateTargetCallback vuforiaAppSession;
     private boolean mIsActive = false;
     private Vector<Texture> mTextures;
@@ -68,7 +65,7 @@ public class ImageDisplayRenderer {
     private Image projectingImage = new Image();
     private float kBuildingScale = 12.0f;
 
-    public ImageDisplayRenderer(BaseActivity activity, UpdateTargetCallback appSession, SampleAppRenderer mSampleAppRenderer) {
+    public ImageDisplayRenderer(AugmentedDisplay activity, UpdateTargetCallback appSession, SampleAppRenderer mSampleAppRenderer) {
 
         this.vuforiaAppSession = appSession;
         this.mActivity = activity;
@@ -187,7 +184,7 @@ public class ImageDisplayRenderer {
         mTextures = textures;
     }
 
-    public void renderFrame(State state, float[] projectionMatrix, SampleAppRenderer mSampleAppRenderer, TargetMetadata metadata) {
+    public void renderFrame(State state, float[] projectionMatrix, SampleAppRenderer mSampleAppRenderer) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         state = mRenderer.begin();
@@ -240,7 +237,7 @@ public class ImageDisplayRenderer {
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
 
-            Texture t = Texture.loadTextureFromUrl(mActivity, metadata.url);
+            Texture t = Texture.loadTextureFromUrl(mActivity, "https://media.licdn.com/media-proxy/ext?w=800&h=800&hash=Jgh%2BZRv40pnmDYF%2FMX%2F3%2FqdxaBw%3D&ora=1%2CaFBCTXdkRmpGL2lvQUFBPQ%2CxAVta5g-0R6nlh8Tw1It6a2FowGz60oISIfYC2G8G2f1spyfNT-tdoDSfLuhsgUbey8DhlI_IfnwEXO5H9D2SvzpHrg17_GTTtWcTggQfzEEoEUZ5uUqOlx3kdKpF-qtMWsc8e1-TwyJC73iVV8vLQll8fq4GKH6GWxUi3WUbO71GJlCE-dQptRWy1ll9-_JAp0_3al__nlukQ-S24zDID44zKXmKUWsFlk6GEDwIsgUkoag-Ri3kR3Qv2P2nZaXAKWBAPQyh0iA1cfefCG5vyFD6m4H4VIgnplmIA");
 
             GLES20.glGenTextures(1, t.mTextureID, 0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
@@ -263,7 +260,7 @@ public class ImageDisplayRenderer {
 
                 // activate texture from repository, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-//                Log.i("TEST", "textureId: " + mTextures.get(currentTarget).mTextureID[0]);
+                Log.i("TEST", "textureId: " + mTextures.get(currentTarget).mTextureID[0]);
                 Log.i("TEST", "dynamic textureId: " + t.mTextureID[0]);
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
                 GLES20.glUniform1i(texSampler2DHandle, 0);
