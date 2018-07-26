@@ -76,6 +76,6 @@
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
 
-        </application>
+    </application>
 
 </manifest>

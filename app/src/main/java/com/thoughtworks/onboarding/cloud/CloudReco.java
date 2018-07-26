@@ -53,12 +53,9 @@ import java.util.Vector;
 
 // The main activity for the CloudReco sample. 
 public class CloudReco extends Activity implements ImageTrackerManager,
-        SampleAppMenuInterface
-{
-    private static final String LOGTAG = "CloudReco";
-
-    private UpdateTargetCallback vuforiaAppSession;
-    
+        SampleAppMenuInterface {
+    final public static int CMD_BACK = -1;
+    final public static int CMD_EXTENDED_TRACKING = 1;
     // These codes match the ones defined in TargetFinder in Vuforia.jar
     static final int INIT_SUCCESS = 2;
     static final int INIT_ERROR_NO_NETWORK_CONNECTION = -1;
@@ -71,241 +68,167 @@ public class CloudReco extends Activity implements ImageTrackerManager,
     static final int UPDATE_ERROR_UPDATE_SDK = -6;
     static final int UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE = -7;
     static final int UPDATE_ERROR_REQUEST_TIMEOUT = -8;
-    
+
     static final int HIDE_LOADING_DIALOG = 0;
     static final int SHOW_LOADING_DIALOG = 1;
-    
+    private static final String LOGTAG = "CloudReco";
+    private static final String kAccessKey = "154a01ae8b006ed397af3631174f0829575e90fe";
+    private static final String kSecretKey = "efc010d47c27f49a481185565a0656ff07b1b7cb";
+    private UpdateTargetCallback vuforiaAppSession;
     // Our OpenGL view:
     private SampleApplicationGLView mGlView;
-    
     // Our renderer:
     private CloudRecoRenderer mRenderer;
-    
     private SampleAppMenu mSampleAppMenu;
-    
     private boolean mExtendedTracking = false;
     private boolean mFinderStarted = false;
     private boolean mStopFinderIfStarted = false;
-    
     // The textures we will use for rendering:
     private Vector<Texture> mTextures;
-    
-    private static final String kAccessKey = "154a01ae8b006ed397af3631174f0829575e90fe";
-    private static final String kSecretKey = "efc010d47c27f49a481185565a0656ff07b1b7cb";
-    
     // View overlays to be displayed in the Augmented View
     private RelativeLayout mUILayout;
-    
     // Error message handling:
     private int mlastErrorCode = 0;
     private int mInitErrorCode = 0;
     private boolean mFinishActivityOnError;
-    
     // Alert Dialog used to display SDK errors
     private AlertDialog mErrorDialog;
-    
     private GestureDetector mGestureDetector;
-    
     private LoadingDialogHandler loadingDialogHandler = new LoadingDialogHandler(
-        this);
-
+            this);
     // declare scan line and its animation
     private View scanLine;
     private TranslateAnimation scanAnimation;
-    
     private double mLastErrorTime;
-
     private boolean mIsDroidDevice = false;
-    
-    
+
     // Called when the activity first starts or needs to be recreated after
     // resuming the application or a configuration change.
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
-        
+
         vuforiaAppSession = new UpdateTargetCallback(this);
-        
+
         startLoadingAnimation();
-        
+
         vuforiaAppSession
-            .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        
+                .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         // Creates the GestureDetector listener for processing double tap
         mGestureDetector = new GestureDetector(this, new GestureListener());
-        
+
         mTextures = new Vector<Texture>();
         loadTextures();
-        
+
         mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith(
-            "droid");
-        
-    }
-    
-    // Process Single Tap event to trigger autofocus
-    private class GestureListener extends
-        GestureDetector.SimpleOnGestureListener
-    {
-        // Used to set autofocus one second after a manual focus is triggered
-        private final Handler autofocusHandler = new Handler();
-        
-        
-        @Override
-        public boolean onDown(MotionEvent e)
-        {
-            return true;
-        }
-        
-        
-        @Override
-        public boolean onSingleTapUp(MotionEvent e)
-        {
-            boolean result = CameraDevice.getInstance().setFocusMode(
-                    CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
-            if (!result)
-                Log.e("SingleTapUp", "Unable to trigger focus");
+                "droid");
 
-            // Generates a Handler to trigger continuous auto-focus
-            // after 1 second
-            autofocusHandler.postDelayed(new Runnable()
-            {
-                public void run()
-                {
-                    final boolean autofocusResult = CameraDevice.getInstance().setFocusMode(
-                            CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO);
-
-                    if (!autofocusResult)
-                        Log.e("SingleTapUp", "Unable to re-enable continuous auto-focus");
-                }
-            }, 1000L);
-            
-            return true;
-        }
     }
-    
-    
+
     // We want to load specific textures from the APK, which we will later use
     // for rendering.
-    private void loadTextures()
-    {
+    private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png",
-            getAssets()));
+                getAssets()));
     }
-    
-    
+
     // Called when the activity will start interacting with the user.
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         Log.d(LOGTAG, "onResume");
         super.onResume();
 
         showProgressIndicator(true);
-        
+
         // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice)
-        {
+        if (mIsDroidDevice) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
         vuforiaAppSession.onResume();
     }
-    
-    
+
     // Callback for configuration changes the activity handles itself
     @Override
-    public void onConfigurationChanged(Configuration config)
-    {
+    public void onConfigurationChanged(Configuration config) {
         Log.d(LOGTAG, "onConfigurationChanged");
         super.onConfigurationChanged(config);
-        
+
         vuforiaAppSession.onConfigurationChanged();
     }
-    
-    
+
     // Called when the system is about to start resuming a previous activity.
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         Log.d(LOGTAG, "onPause");
         super.onPause();
 
         vuforiaAppSession.pauseAR();
 
         // Pauses the OpenGLView
-        if (mGlView != null)
-        {
+        if (mGlView != null) {
             mGlView.setVisibility(View.INVISIBLE);
             mGlView.onPause();
         }
     }
-    
-    
+
     // The final call you receive before your activity is destroyed.
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         Log.d(LOGTAG, "onDestroy");
         super.onDestroy();
-        
-        try
-        {
+
+        try {
             vuforiaAppSession.stopAR();
-        } catch (SampleApplicationException e)
-        {
+        } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
-        
+
         System.gc();
     }
-    
-    
-    public void deinitCloudReco()
-    {
+
+    public void deinitCloudReco() {
         // Get the object tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
-            .getTracker(ObjectTracker.getClassType());
-        if (objectTracker == null)
-        {
+                .getTracker(ObjectTracker.getClassType());
+        if (objectTracker == null) {
             Log.e(LOGTAG,
-                "Failed to destroy the tracking data set because the ObjectTracker has not"
-                    + " been initialized.");
+                    "Failed to destroy the tracking data set because the ObjectTracker has not"
+                            + " been initialized.");
             return;
         }
-        
+
         // Deinitialize target finder:
         TargetFinder finder = objectTracker.getTargetFinder();
         finder.deinit();
     }
-    
-    
-    private void startLoadingAnimation()
-    {
+
+    private void startLoadingAnimation() {
         // Inflates the Overlay Layout to be displayed above the Camera View
         LayoutInflater inflater = LayoutInflater.from(this);
         mUILayout = (RelativeLayout) inflater.inflate(R.layout.camera_overlay_with_scanline,
-            null, false);
-        
+                null, false);
+
         mUILayout.setVisibility(View.VISIBLE);
         mUILayout.setBackgroundColor(Color.BLACK);
-        
+
         // By default
         loadingDialogHandler.mLoadingDialogContainer = mUILayout
-            .findViewById(R.id.loading_indicator);
+                .findViewById(R.id.loading_indicator);
         loadingDialogHandler.mLoadingDialogContainer
-            .setVisibility(View.VISIBLE);
+                .setVisibility(View.VISIBLE);
 
         scanLine = mUILayout.findViewById(R.id.scan_line);
         scanLine.setVisibility(View.GONE);
         scanAnimation = new TranslateAnimation(
-            TranslateAnimation.ABSOLUTE, 0f,
-            TranslateAnimation.ABSOLUTE, 0f,
-            TranslateAnimation.RELATIVE_TO_PARENT, 0f,
-            TranslateAnimation.RELATIVE_TO_PARENT, 1.0f);
+                TranslateAnimation.ABSOLUTE, 0f,
+                TranslateAnimation.ABSOLUTE, 0f,
+                TranslateAnimation.RELATIVE_TO_PARENT, 0f,
+                TranslateAnimation.RELATIVE_TO_PARENT, 1.0f);
         scanAnimation.setDuration(4000);
         scanAnimation.setRepeatCount(-1);
         scanAnimation.setRepeatMode(Animation.REVERSE);
@@ -313,32 +236,28 @@ public class CloudReco extends Activity implements ImageTrackerManager,
 
         addContentView(mUILayout, new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT));
-        
+
     }
-    
-    
+
     // Initializes AR application components.
-    private void initApplicationAR()
-    {
+    private void initApplicationAR() {
         // Create OpenGL ES view:
         int depthSize = 16;
         int stencilSize = 0;
         boolean translucent = Vuforia.requiresAlpha();
-        
+
         // Initialize the GLView with proper flags
         mGlView = new SampleApplicationGLView(this);
         mGlView.init(translucent, depthSize, stencilSize);
-        
+
         // Setups the Renderer of the GLView
         mRenderer = new CloudRecoRenderer(vuforiaAppSession, this);
         mGlView.setRenderer(mRenderer);
-        
+
     }
-    
-    
+
     // Returns the error message for each error code
-    private String getStatusDescString(int code)
-    {
+    private String getStatusDescString(int code) {
         if (code == UPDATE_ERROR_AUTHORIZATION_FAILED)
             return getString(R.string.UPDATE_ERROR_AUTHORIZATION_FAILED_DESC);
         if (code == UPDATE_ERROR_PROJECT_SUSPENDED)
@@ -355,16 +274,13 @@ public class CloudReco extends Activity implements ImageTrackerManager,
             return getString(R.string.UPDATE_ERROR_REQUEST_TIMEOUT_DESC);
         if (code == UPDATE_ERROR_BAD_FRAME_QUALITY)
             return getString(R.string.UPDATE_ERROR_BAD_FRAME_QUALITY_DESC);
-        else
-        {
+        else {
             return getString(R.string.UPDATE_ERROR_UNKNOWN_DESC);
         }
     }
-    
-    
+
     // Returns the error message for each error code
-    private String getStatusTitleString(int code)
-    {
+    private String getStatusTitleString(int code) {
         if (code == UPDATE_ERROR_AUTHORIZATION_FAILED)
             return getString(R.string.UPDATE_ERROR_AUTHORIZATION_FAILED_TITLE);
         if (code == UPDATE_ERROR_PROJECT_SUSPENDED)
@@ -381,214 +297,175 @@ public class CloudReco extends Activity implements ImageTrackerManager,
             return getString(R.string.UPDATE_ERROR_REQUEST_TIMEOUT_TITLE);
         if (code == UPDATE_ERROR_BAD_FRAME_QUALITY)
             return getString(R.string.UPDATE_ERROR_BAD_FRAME_QUALITY_TITLE);
-        else
-        {
+        else {
             return getString(R.string.UPDATE_ERROR_UNKNOWN_TITLE);
         }
     }
-    
-    
+
     // Shows error messages as System dialogs
-    public void showErrorMessage(int errorCode, double errorTime, boolean finishActivityOnError)
-    {
+    public void showErrorMessage(int errorCode, double errorTime, boolean finishActivityOnError) {
         if (errorTime < (mLastErrorTime + 5.0) || errorCode == mlastErrorCode)
             return;
-        
+
         mlastErrorCode = errorCode;
         mFinishActivityOnError = finishActivityOnError;
-        
-        runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                if (mErrorDialog != null)
-                {
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                if (mErrorDialog != null) {
                     mErrorDialog.dismiss();
                 }
-                
+
                 // Generates an Alert Dialog to show the error message
                 AlertDialog.Builder builder = new AlertDialog.Builder(
-                    CloudReco.this);
+                        CloudReco.this);
                 builder
-                    .setMessage(
-                        getStatusDescString(CloudReco.this.mlastErrorCode))
-                    .setTitle(
-                        getStatusTitleString(CloudReco.this.mlastErrorCode))
-                    .setCancelable(false)
-                    .setIcon(0)
-                    .setPositiveButton(getString(R.string.button_OK),
-                        new DialogInterface.OnClickListener()
-                        {
-                            public void onClick(DialogInterface dialog, int id)
-                            {
-                                if(mFinishActivityOnError)
-                                {
-                                    finish();
-                                }
-                                else
-                                {
-                                    dialog.dismiss();
-                                }
-                            }
-                        });
-                
+                        .setMessage(
+                                getStatusDescString(CloudReco.this.mlastErrorCode))
+                        .setTitle(
+                                getStatusTitleString(CloudReco.this.mlastErrorCode))
+                        .setCancelable(false)
+                        .setIcon(0)
+                        .setPositiveButton(getString(R.string.button_OK),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        if (mFinishActivityOnError) {
+                                            finish();
+                                        } else {
+                                            dialog.dismiss();
+                                        }
+                                    }
+                                });
+
                 mErrorDialog = builder.create();
                 mErrorDialog.show();
             }
         });
     }
-    
-    
+
     // Shows initialization error messages as System dialogs
-    public void showInitializationErrorMessage(String message)
-    {
+    public void showInitializationErrorMessage(String message) {
         final String errorMessage = message;
-        runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                if (mErrorDialog != null)
-                {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                if (mErrorDialog != null) {
                     mErrorDialog.dismiss();
                 }
-                
+
                 // Generates an Alert Dialog to show the error message
                 AlertDialog.Builder builder = new AlertDialog.Builder(
-                    CloudReco.this);
+                        CloudReco.this);
                 builder
-                    .setMessage(errorMessage)
-                    .setTitle(getString(R.string.INIT_ERROR))
-                    .setCancelable(false)
-                    .setIcon(0)
-                    .setPositiveButton(getString(R.string.button_OK),
-                        new DialogInterface.OnClickListener()
-                        {
-                            public void onClick(DialogInterface dialog, int id)
-                            {
-                                finish();
-                            }
-                        });
-                
+                        .setMessage(errorMessage)
+                        .setTitle(getString(R.string.INIT_ERROR))
+                        .setCancelable(false)
+                        .setIcon(0)
+                        .setPositiveButton(getString(R.string.button_OK),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        finish();
+                                    }
+                                });
+
                 mErrorDialog = builder.create();
                 mErrorDialog.show();
             }
         });
     }
-    
-    
-    public void startFinderIfStopped()
-    {
-        if(!mFinderStarted)
-        {
+
+    public void startFinderIfStopped() {
+        if (!mFinderStarted) {
             mFinderStarted = true;
-            
+
             // Get the object tracker:
             TrackerManager trackerManager = TrackerManager.getInstance();
             ObjectTracker objectTracker = (ObjectTracker) trackerManager
-                .getTracker(ObjectTracker.getClassType());
-            
+                    .getTracker(ObjectTracker.getClassType());
+
             // Initialize target finder:
             TargetFinder targetFinder = objectTracker.getTargetFinder();
-            
+
             targetFinder.clearTrackables();
             targetFinder.startRecognition();
             scanlineStart();
         }
     }
-    
-    
-    public void stopFinderIfStarted()
-    {
-        if(mFinderStarted)
-        {
+
+    public void stopFinderIfStarted() {
+        if (mFinderStarted) {
             mFinderStarted = false;
-            
+
             // Get the object tracker:
             TrackerManager trackerManager = TrackerManager.getInstance();
             ObjectTracker objectTracker = (ObjectTracker) trackerManager
-                .getTracker(ObjectTracker.getClassType());
-            
+                    .getTracker(ObjectTracker.getClassType());
+
             // Initialize target finder:
             TargetFinder targetFinder = objectTracker.getTargetFinder();
-            
+
             targetFinder.stop();
             scanlineStop();
         }
     }
-    
-    
+
     @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
         // Process the Gestures
         if (mSampleAppMenu != null && mSampleAppMenu.processEvent(event))
             return true;
-        
+
         return mGestureDetector.onTouchEvent(event);
     }
-    
-    
+
     @Override
-    public boolean doLoadTrackersData()
-    {
+    public boolean doLoadTrackersData() {
         Log.d(LOGTAG, "initCloudReco");
-        
+
         // Get the object tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
-            .getTracker(ObjectTracker.getClassType());
-        
+                .getTracker(ObjectTracker.getClassType());
+
         // Initialize target finder:
         TargetFinder targetFinder = objectTracker.getTargetFinder();
-        
+
         // Start initialization:
-        if (targetFinder.startInit(kAccessKey, kSecretKey))
-        {
+        if (targetFinder.startInit(kAccessKey, kSecretKey)) {
             targetFinder.waitUntilInitFinished();
         }
-        
+
         int resultCode = targetFinder.getInitState();
-        if (resultCode != TargetFinder.INIT_SUCCESS)
-        {
-            if(resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION)
-            {
+        if (resultCode != TargetFinder.INIT_SUCCESS) {
+            if (resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION) {
                 mInitErrorCode = UPDATE_ERROR_NO_NETWORK_CONNECTION;
-            }
-            else
-            {
+            } else {
                 mInitErrorCode = UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
             }
-                
+
             Log.e(LOGTAG, "Failed to initialize target finder.");
             return false;
         }
-        
-        return true;
-    }
-    
-    
-    @Override
-    public boolean doUnloadTrackersData()
-    {
+
         return true;
     }
 
     @Override
-    public void onVuforiaResumed()
-    {
-        if (mGlView != null)
-        {
+    public boolean doUnloadTrackersData() {
+        return true;
+    }
+
+    @Override
+    public void onVuforiaResumed() {
+        if (mGlView != null) {
             mGlView.setVisibility(View.VISIBLE);
             mGlView.onResume();
         }
     }
-    
+
     @Override
-    public void onInitARDone(SampleApplicationException exception)
-    {
-        
-        if (exception == null)
-        {
+    public void onInitARDone(SampleApplicationException exception) {
+
+        if (exception == null) {
             initApplicationAR();
 
             mRenderer.setActive(true);
@@ -598,47 +475,39 @@ public class CloudReco extends Activity implements ImageTrackerManager,
             // BEFORE the camera is started and video
             // background is configured.
             addContentView(mGlView, new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
+                    LayoutParams.MATCH_PARENT));
 
             vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
-            
+
             mUILayout.bringToFront();
-            
+
             // Hides the Loading Dialog
             loadingDialogHandler.sendEmptyMessage(HIDE_LOADING_DIALOG);
-            
+
             mUILayout.setBackgroundColor(Color.TRANSPARENT);
-            
+
             mSampleAppMenu = new SampleAppMenu(this, this, "Cloud Reco",
-                mGlView, mUILayout, null);
+                    mGlView, mUILayout, null);
             setSampleAppMenuSettings();
-            
-        } else
-        {
+
+        } else {
             Log.e(LOGTAG, exception.getString());
-            if(mInitErrorCode != 0)
-            {
-                showErrorMessage(mInitErrorCode,10, true);
-            }
-            else
-            {
+            if (mInitErrorCode != 0) {
+                showErrorMessage(mInitErrorCode, 10, true);
+            } else {
                 showInitializationErrorMessage(exception.getString());
             }
         }
     }
 
-
     @Override
-    public void onVuforiaStarted()
-    {
+    public void onVuforiaStarted() {
         mRenderer.updateRenderingPrimitives();
 
         // Set camera focus mode
-        if(!CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO))
-        {
+        if (!CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO)) {
             // If continuous autofocus mode fails, attempt to set to a different mode
-            if(!CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO))
-            {
+            if (!CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO)) {
                 CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_NORMAL);
             }
         }
@@ -646,241 +515,202 @@ public class CloudReco extends Activity implements ImageTrackerManager,
         showProgressIndicator(false);
     }
 
-    public void showProgressIndicator(boolean show)
-    {
-        if (loadingDialogHandler != null)
-        {
-            if (show)
-            {
+    public void showProgressIndicator(boolean show) {
+        if (loadingDialogHandler != null) {
+            if (show) {
                 loadingDialogHandler
                         .sendEmptyMessage(LoadingDialogHandler.SHOW_LOADING_DIALOG);
-            }
-            else
-            {
+            } else {
                 loadingDialogHandler
                         .sendEmptyMessage(LoadingDialogHandler.HIDE_LOADING_DIALOG);
             }
         }
     }
-    
-    
+
     @Override
-    public void onVuforiaUpdate(State state)
-    {
+    public void onVuforiaUpdate(State state) {
         // Get the tracker manager:
         TrackerManager trackerManager = TrackerManager.getInstance();
-        
+
         // Get the object tracker:
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
-            .getTracker(ObjectTracker.getClassType());
-        
+                .getTracker(ObjectTracker.getClassType());
+
         // Get the target finder:
         TargetFinder finder = objectTracker.getTargetFinder();
-        
+
         // Check if there are new results available:
         final int statusCode = finder.updateSearchResults();
-        
+
         // Show a message if we encountered an error:
-        if (statusCode < 0)
-        {
-            
+        if (statusCode < 0) {
+
             boolean closeAppAfterError = (
-                statusCode == UPDATE_ERROR_NO_NETWORK_CONNECTION ||
-                statusCode == UPDATE_ERROR_SERVICE_NOT_AVAILABLE);
-            
+                    statusCode == UPDATE_ERROR_NO_NETWORK_CONNECTION ||
+                            statusCode == UPDATE_ERROR_SERVICE_NOT_AVAILABLE);
+
             showErrorMessage(statusCode, state.getFrame().getTimeStamp(), closeAppAfterError);
-            
-        } else if (statusCode == TargetFinder.UPDATE_RESULTS_AVAILABLE)
-        {
+
+        } else if (statusCode == TargetFinder.UPDATE_RESULTS_AVAILABLE) {
             // Process new search results
-            if (finder.getResultCount() > 0)
-            {
+            if (finder.getResultCount() > 0) {
                 TargetSearchResult result = finder.getResult(0);
-                
+
                 // Check if this target is suitable for tracking:
-                if (result.getTrackingRating() > 0)
-                {
+                if (result.getTrackingRating() > 0) {
                     Trackable trackable = finder.enableTracking(result);
-                    
+
                     if (mExtendedTracking)
                         trackable.startExtendedTracking();
                 }
             }
-        } 
+        }
     }
-    
-    
+
     @Override
-    public boolean doInitTrackers()
-    {
+    public boolean doInitTrackers() {
         TrackerManager tManager = TrackerManager.getInstance();
         Tracker tracker;
-        
+
         // Indicate if the trackers were initialized correctly
         boolean result = true;
-        
+
         tracker = tManager.initTracker(ObjectTracker.getClassType());
-        if (tracker == null)
-        {
+        if (tracker == null) {
             Log.e(
-                LOGTAG,
-                "Tracker not initialized. Tracker already initialized or the camera is already started");
+                    LOGTAG,
+                    "Tracker not initialized. Tracker already initialized or the camera is already started");
             result = false;
-        } else
-        {
+        } else {
             Log.i(LOGTAG, "Tracker successfully initialized");
         }
-        
+
         return result;
     }
-    
-    
+
     @Override
-    public boolean doStartTrackers()
-    {
+    public boolean doStartTrackers() {
         // Indicate if the trackers were started correctly
         boolean result = true;
-        
+
         // Start the tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
-            .getTracker(ObjectTracker.getClassType());
+                .getTracker(ObjectTracker.getClassType());
         objectTracker.start();
-        
+
         // Start cloud based recognition if we are in scanning mode:
         TargetFinder targetFinder = objectTracker.getTargetFinder();
         targetFinder.startRecognition();
         scanlineStart();
         mFinderStarted = true;
-        
+
         return result;
     }
-    
-    
+
     @Override
-    public boolean doStopTrackers()
-    {
+    public boolean doStopTrackers() {
         // Indicate if the trackers were stopped correctly
         boolean result = true;
-        
+
         TrackerManager trackerManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
-            .getTracker(ObjectTracker.getClassType());
-        
-        if(objectTracker != null)
-        {
+                .getTracker(ObjectTracker.getClassType());
+
+        if (objectTracker != null) {
             objectTracker.stop();
-            
+
             // Stop cloud based recognition:
             TargetFinder targetFinder = objectTracker.getTargetFinder();
             targetFinder.stop();
             scanlineStop();
             mFinderStarted = false;
-            
+
             // Clears the trackables
             targetFinder.clearTrackables();
-        }
-        else
-        {
+        } else {
             result = false;
         }
-        
+
         return result;
     }
-    
-    
+
     @Override
-    public boolean doDeinitTrackers()
-    {
+    public boolean doDeinitTrackers() {
         // Indicate if the trackers were deinitialized correctly
         boolean result = true;
-        
+
         TrackerManager tManager = TrackerManager.getInstance();
         tManager.deinitTracker(ObjectTracker.getClassType());
-        
+
         return result;
     }
-    
-    final public static int CMD_BACK = -1;
-    final public static int CMD_EXTENDED_TRACKING = 1;
-    
+
     // This method sets the menu's settings
-    private void setSampleAppMenuSettings()
-    {
+    private void setSampleAppMenuSettings() {
         SampleAppMenuGroup group;
-        
+
         group = mSampleAppMenu.addGroup("", false);
         group.addTextItem(getString(R.string.menu_back), -1);
-        
+
         group = mSampleAppMenu.addGroup("", true);
         group.addSelectionItem(getString(R.string.menu_extended_tracking),
-            CMD_EXTENDED_TRACKING, false);
-        
+                CMD_EXTENDED_TRACKING, false);
+
         mSampleAppMenu.attachMenu();
     }
-    
-    
+
     @Override
-    public boolean menuProcess(int command)
-    {
+    public boolean menuProcess(int command) {
         boolean result = true;
-        
-        switch (command)
-        {
+
+        switch (command) {
             case CMD_BACK:
                 finish();
                 break;
-            
+
             case CMD_EXTENDED_TRACKING:
                 TrackerManager trackerManager = TrackerManager.getInstance();
                 ObjectTracker objectTracker = (ObjectTracker) trackerManager
-                    .getTracker(ObjectTracker.getClassType());
-                
+                        .getTracker(ObjectTracker.getClassType());
+
                 TargetFinder targetFinder = objectTracker.getTargetFinder();
-                
-                if (targetFinder.getNumImageTargets() == 0)
-                {
+
+                if (targetFinder.getNumImageTargets() == 0) {
                     result = true;
                 }
-                
-                for (int tIdx = 0; tIdx < targetFinder.getNumImageTargets(); tIdx++)
-                {
+
+                for (int tIdx = 0; tIdx < targetFinder.getNumImageTargets(); tIdx++) {
                     Trackable trackable = targetFinder.getImageTarget(tIdx);
-                    
-                    if (!mExtendedTracking)
-                    {
-                        if (!trackable.startExtendedTracking())
-                        {
+
+                    if (!mExtendedTracking) {
+                        if (!trackable.startExtendedTracking()) {
                             Log.e(LOGTAG,
-                                "Failed to start extended tracking target");
+                                    "Failed to start extended tracking target");
                             result = false;
-                        } else
-                        {
+                        } else {
                             Log.d(LOGTAG,
-                                "Successfully started extended tracking target");
+                                    "Successfully started extended tracking target");
                         }
-                    } else
-                    {
-                        if (!trackable.stopExtendedTracking())
-                        {
+                    } else {
+                        if (!trackable.stopExtendedTracking()) {
                             Log.e(LOGTAG,
-                                "Failed to stop extended tracking target");
+                                    "Failed to stop extended tracking target");
                             result = false;
-                        } else
-                        {
+                        } else {
                             Log.d(LOGTAG,
-                                "Successfully started extended tracking target");
+                                    "Successfully started extended tracking target");
                         }
                     }
                 }
-                
+
                 if (result)
                     mExtendedTracking = !mExtendedTracking;
-                
+
                 break;
-            
+
         }
-        
+
         return result;
     }
 
@@ -902,6 +732,42 @@ public class CloudReco extends Activity implements ImageTrackerManager,
                 scanLine.clearAnimation();
             }
         });
+    }
+
+    // Process Single Tap event to trigger autofocus
+    private class GestureListener extends
+            GestureDetector.SimpleOnGestureListener {
+        // Used to set autofocus one second after a manual focus is triggered
+        private final Handler autofocusHandler = new Handler();
+
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            boolean result = CameraDevice.getInstance().setFocusMode(
+                    CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
+            if (!result)
+                Log.e("SingleTapUp", "Unable to trigger focus");
+
+            // Generates a Handler to trigger continuous auto-focus
+            // after 1 second
+            autofocusHandler.postDelayed(new Runnable() {
+                public void run() {
+                    final boolean autofocusResult = CameraDevice.getInstance().setFocusMode(
+                            CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO);
+
+                    if (!autofocusResult)
+                        Log.e("SingleTapUp", "Unable to re-enable continuous auto-focus");
+                }
+            }, 1000L);
+
+            return true;
+        }
     }
 
 }

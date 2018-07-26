@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 def VUFORIA_SDK_DIR = '../'
 def NATIVE_LIB_DIR = 'vuforia/lib'
-def JAR_DIR = 'vuforia/java/vuforia'
+def JAR_DIR = 'vuforia/java/Vuforia'
 
 android {
     compileSdkVersion 27
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.vuforia.samples.VideoPlayback"
+        applicationId "com.thoughtworks.onboarding"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1

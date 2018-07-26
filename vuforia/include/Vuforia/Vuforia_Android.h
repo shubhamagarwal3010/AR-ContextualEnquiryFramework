@@ -21,10 +21,17 @@ countries.
 namespace Vuforia
 {
 
-/// Sets Vuforia initialization parameters
+
+/// Set %Vuforia initialization parameters.
 /**
- * <b>Android:</b> Called to set the Vuforia initialization parameters prior to calling Vuforia::init().
- * Refer to the enumeration Vuforia::INIT_FLAGS for applicable flags.
+ * <b>Android:</b> Call this function before calling Vuforia::init().
+ *
+ * See the "Lifecycle of a Vuforia app" section on the main %Vuforia
+ * reference page for more information. \ref Lifecycle "Lifecycle of a Vuforia app"
+ *
+ * \param activity The Activity that %Vuforia should run under.
+ * \param flags Flags to set. See Vuforia::INIT_FLAGS for appropriate flags.
+ * \param licenseKey Your %Vuforia license key.
  */
 void VUFORIA_API setInitParameters(jobject activity, int flags, const char* licenseKey);
 

@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:onClick="dualAugmentation"
         android:text="Dual Augmentation"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/cloud_image"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
 
         />
 
@@ -22,11 +22,11 @@
         android:id="@+id/cloud_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="renderCloudImageTargets"
         android:text="Cloud Image Targets"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:onClick="renderCloudImageTargets"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

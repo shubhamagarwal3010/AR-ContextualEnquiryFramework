@@ -19,7 +19,6 @@ import android.util.Log;
 import com.thoughtworks.onboarding.utils.BackgroundMesh;
 import com.thoughtworks.onboarding.utils.SampleUtils;
 import com.thoughtworks.onboarding.utils.VideoBackgroundShader;
-import com.vuforia.COORDINATE_SYSTEM_TYPE;
 import com.vuforia.CameraDevice;
 import com.vuforia.Device;
 import com.vuforia.GLTextureUnit;
@@ -182,7 +181,6 @@ public class SampleAppRenderer {
             // Get projection matrix for the current view. COORDINATE_SYSTEM_CAMERA used for AR and
             // COORDINATE_SYSTEM_WORLD for VR
             Matrix34F projMatrix = mRenderingPrimitives.getProjectionMatrix(viewID,
-                    COORDINATE_SYSTEM_TYPE.COORDINATE_SYSTEM_CAMERA,
                     state.getCameraCalibration());
 
             // Create GL matrix setting up the near and far planes
@@ -230,7 +228,7 @@ public class SampleAppRenderer {
         }
 
         float[] vbProjectionMatrix = Tool.convert2GLMatrix(
-                mRenderingPrimitives.getVideoBackgroundProjectionMatrix(currentView, COORDINATE_SYSTEM_TYPE.COORDINATE_SYSTEM_CAMERA)).getData();
+                mRenderingPrimitives.getVideoBackgroundProjectionMatrix(currentView)).getData();
 
         // Apply the scene scale on video see-through eyewear, to scale the video background and augmentation
         // so that the display lines up with the real world
@@ -271,79 +269,6 @@ public class SampleAppRenderer {
 
         SampleUtils.checkGLError("Rendering of the video background failed");
     }
-
-    public void renderVideoBackgroundGrayScale() {
-        if (currentView == VIEW.VIEW_POSTPROCESS)
-            return;
-
-        int vbVideoTextureUnit = 0;
-        // Bind the video bg texture and get the Texture ID from Vuforia
-        videoBackgroundTex.setTextureUnit(vbVideoTextureUnit);
-        if (!mRenderer.updateVideoBackgroundTexture(videoBackgroundTex)) {
-            Log.e(LOGTAG, "Unable to update video background texture");
-            return;
-        }
-
-        if (vbMesh == null) {
-            boolean isActivityPortrait;
-            Configuration config = mActivity.getResources().getConfiguration();
-
-            isActivityPortrait = config.orientation != Configuration.ORIENTATION_LANDSCAPE;
-
-            vbMesh = new BackgroundMesh(10, 10);
-            if (!vbMesh.isValid()) {
-                vbMesh = null;
-                Log.e(LOGTAG, "VB Mesh not valid!!");
-                return;
-            }
-        }
-
-        float[] vbProjectionMatrix = Tool.convert2GLMatrix(
-                mRenderingPrimitives.getVideoBackgroundProjectionMatrix(currentView, COORDINATE_SYSTEM_TYPE.COORDINATE_SYSTEM_CAMERA)).getData();
-
-        // Apply the scene scale on video see-through eyewear, to scale the video background and augmentation
-        // so that the display lines up with the real world
-        // This should not be applied on optical see-through devices, as there is no video background,
-        // and the calibration ensures that the augmentation matches the real world
-        if (Device.getInstance().isViewerActive()) {
-            float sceneScaleFactor = (float) getSceneScaleFactor();
-            Matrix.scaleM(vbProjectionMatrix, 0, sceneScaleFactor, sceneScaleFactor, 1.0f);
-        }
-
-        GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-        GLES20.glDisable(GLES20.GL_CULL_FACE);
-        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
-
-        // Load the shader and upload the vertex/texcoord/index data
-        GLES20.glUseProgram(vbShaderProgramID);
-        GLES20.glVertexAttribPointer(vbVertexHandle, 3, GLES20.GL_FLOAT, false, 0, vbMesh.getBuffer(BackgroundMesh.BUFFER_TYPE_VERTEX));
-        GLES20.glVertexAttribPointer(vbTexCoordHandle, 2, GLES20.GL_FLOAT, false, 0, vbMesh.getBuffer(BackgroundMesh.BUFFER_TYPE_TEXTURE_COORD));
-        GLES20.glUniform1f(vbTouchLocationXHandle,
-                (touchLocation_x * 2.0f) - 1.0f);
-        GLES20.glUniform1f(vbTouchLocationYHandle,
-                (touchLocation_y * 2.0f) - 1.0f);
-
-        GLES20.glUniform1i(vbTexSampler2DHandle, vbVideoTextureUnit);
-
-        // Render the video background with the custom shader
-        // First, we enable the vertex arrays
-        GLES20.glEnableVertexAttribArray(vbVertexHandle);
-        GLES20.glEnableVertexAttribArray(vbTexCoordHandle);
-
-        // Pass the projection matrix to OpenGL
-        GLES20.glUniformMatrix4fv(vbProjectionMatrixHandle, 1, false, vbProjectionMatrix, 0);
-
-        // Then, we issue the render call
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, vbMesh.getNumObjectIndex(), GLES20.GL_UNSIGNED_BYTE,
-                vbMesh.getBuffer(BackgroundMesh.BUFFER_TYPE_INDICES));
-
-        // Finally, we disable the vertex arrays
-        GLES20.glDisableVertexAttribArray(vbVertexHandle);
-        GLES20.glDisableVertexAttribArray(vbTexCoordHandle);
-
-        SampleUtils.checkGLError("Rendering of the video background failed");
-    }
-
 
     double getSceneScaleFactor() {
         // Get the y-dimension of the physical camera field of view
