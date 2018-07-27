@@ -42,4 +42,6 @@
     <string name="menu_back">Vuforia Samples</string>
     <string name="menu_extended_tracking">Extended Tracking</string>
 
+    <string name="splash_screen_description">AR Splash</string>
+
 </resources>

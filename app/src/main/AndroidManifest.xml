@@ -55,7 +55,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
         <activity
-            android:name=".ui.ActivityList.MainActivity"
+            android:name=".ui.ActivityList.SplashScreenActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:noHistory="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,6 +65,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.ActivityList.MainActivity"
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name=".AugmentedDisplay.AugmentedDisplay"

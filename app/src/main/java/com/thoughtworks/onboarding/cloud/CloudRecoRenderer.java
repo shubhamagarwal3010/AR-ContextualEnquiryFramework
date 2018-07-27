@@ -62,7 +62,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
     }
 
 
-    // Called when the surface is created or recreated.
+    // Called when the surface is created or recreated./
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Call Vuforia function to (re)initialize rendering after first use
