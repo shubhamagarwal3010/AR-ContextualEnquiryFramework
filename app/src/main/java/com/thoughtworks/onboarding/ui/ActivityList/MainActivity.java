@@ -19,12 +19,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void dualAugmentation(View view) {
-        Intent intent = new Intent(MainActivity.this, VideoPlayback.class);
+        Intent intent = new Intent(MainActivity.this, AugmentedDisplay.class);
         startActivity(intent);
     }
 
     public void renderCloudImageTargets(View view) {
         Intent intent = new Intent(this, CloudReco.class);
+        startActivity(intent);
+    }
+
+    public void renderCloudVideoTargets(View view) {
+        Intent intent = new Intent(this, VideoPlayback.class);
         startActivity(intent);
     }
 }

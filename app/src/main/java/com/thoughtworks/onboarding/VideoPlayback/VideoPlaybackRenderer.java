@@ -1,7 +1,6 @@
 package com.thoughtworks.onboarding.VideoPlayback;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -10,9 +9,11 @@ import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRendererControl;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.cloud.TargetMetadata;
 import com.thoughtworks.onboarding.utils.SampleMath;
 import com.thoughtworks.onboarding.utils.SampleUtils;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -35,7 +36,7 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.*;
+import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_STATE;
 import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_TYPE.FULLSCREEN;
 import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_TYPE.ON_TEXTURE_FULLSCREEN;
 
@@ -57,7 +58,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
     double quadNormalsArray[] = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,};
     short quadIndicesArray[] = {0, 1, 2, 2, 3, 0};
     Buffer quadVertices, quadTexCoords, quadIndices, quadNormals;
-    Activity mActivity;
+    VideoPlayback mActivity;
     // Needed to calculate whether a screen tap is inside the target
     Matrix44F modelViewMatrix = null;
     boolean isTracking;
@@ -95,9 +96,10 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
     private long mLostTrackingSince;
     private boolean mLoadRequested;
     private Vector<Texture> mTextures;
+    private String url = "";
 
 
-    public VideoPlaybackRenderer(Activity activity,
+    public VideoPlaybackRenderer(VideoPlayback activity,
                                  UpdateTargetCallback session) {
 
         mActivity = activity;
@@ -454,6 +456,20 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
             ImageTarget imageTarget = (ImageTarget) trackableResult
                     .getTrackable();
+            TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+
+            String newUrl = targetMetadata.url;
+
+            if (mVideoPlayerHelper != null && !newUrl.equals(url)) {
+                mActivity.setUrl(newUrl);
+
+                mVideoPlayerHelper.unload();
+                mVideoPlayerHelper.load(newUrl, mCanRequestType,
+                        mShouldPlayImmediately, mSeekPosition);
+                mLoadRequested = false;
+
+                url = newUrl;
+            }
 
             modelViewMatrix = Tool
                     .convertPose2GLMatrix(trackableResult.getPose());
@@ -470,10 +486,10 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
             // If the movie is ready to start playing or it has reached the end
             // of playback we render the keyframe
-            if ((currentStatus == VideoPlayerHelper.MEDIA_STATE.READY)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.REACHED_END)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.NOT_READY)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.ERROR)) {
+            if ((currentStatus == MEDIA_STATE.READY)
+                    || (currentStatus == MEDIA_STATE.REACHED_END)
+                    || (currentStatus == MEDIA_STATE.NOT_READY)
+                    || (currentStatus == MEDIA_STATE.ERROR)) {
                 float[] modelViewMatrixKeyframe = Tool.convertPose2GLMatrix(
                         trackableResult.getPose()).getData();
                 float[] modelViewProjectionKeyframe = new float[16];
@@ -589,11 +605,11 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
             // The following section renders the icons. The actual textures used
             // are loaded from the assets folder
 
-            if ((currentStatus == VideoPlayerHelper.MEDIA_STATE.READY)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.REACHED_END)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.PAUSED)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.NOT_READY)
-                    || (currentStatus == VideoPlayerHelper.MEDIA_STATE.ERROR)) {
+            if ((currentStatus == MEDIA_STATE.READY)
+                    || (currentStatus == MEDIA_STATE.REACHED_END)
+                    || (currentStatus == MEDIA_STATE.PAUSED)
+                    || (currentStatus == MEDIA_STATE.NOT_READY)
+                    || (currentStatus == MEDIA_STATE.ERROR)) {
                 // If the movie is ready to be played, pause, has reached end or
                 // is not
                 // ready then we display one of the icons

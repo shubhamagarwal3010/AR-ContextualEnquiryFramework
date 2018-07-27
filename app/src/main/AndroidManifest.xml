@@ -67,7 +67,7 @@
         </activity>
         <activity
             android:name=".ui.ActivityList.MainActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".AugmentedDisplay.AugmentedDisplay"

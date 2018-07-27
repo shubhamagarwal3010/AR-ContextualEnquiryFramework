@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
+import com.thoughtworks.onboarding.AppHelper;
 import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
@@ -24,16 +25,19 @@ import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
 import com.vuforia.CameraDevice;
-import com.vuforia.DataSet;
-import com.vuforia.HINT;
 import com.vuforia.ObjectTracker;
-import com.vuforia.STORAGE_TYPE;
 import com.vuforia.State;
+import com.vuforia.TargetFinder;
+import com.vuforia.TargetSearchResult;
+import com.vuforia.Trackable;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
 
 import java.util.Vector;
+
+import static com.vuforia.TargetFinder.UPDATE_ERROR_NO_NETWORK_CONNECTION;
+import static com.vuforia.TargetFinder.UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
 
 
 // The AR activity for the VideoPlayback sample.
@@ -42,11 +46,13 @@ public class VideoPlayback extends Activity implements
     private static final String LOGTAG = "VideoPlayback";
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
+    private static final String kAccessKey = AppHelper.kAccessKey;
+    private static final String kSecretKey = AppHelper.kSecretKey;
     // Movie for the Targets:
     UpdateTargetCallback updateTargetCallback;
     Activity mActivity;
-    DataSet dataSetStonesAndChips = null;
     boolean mIsInitialized = false;
+    boolean mFinderStarted = false;
     // Helpers to detect events such as double tapping:
     private GestureDetector videoGestureDetector = null;
     private SimpleOnGestureListener videoGestureListner = null;
@@ -67,8 +73,9 @@ public class VideoPlayback extends Activity implements
             this);
     // Alert Dialog used to display SDK errors
     private AlertDialog mErrorDialog;
-
-    private String mMovieName = "VideoPlayback/SampleVideo.mp4";
+    private String mMovieName;
+    private int mInitErrorCode = 0;
+    private boolean mExtendedTracking = false;
 
     // Called when the activity first starts or the user navigates back
     // to an activity.
@@ -272,7 +279,7 @@ public class VideoPlayback extends Activity implements
         // can't load the movie from this thread (GUI) but instead we must
         // tell the GL thread to load it once the surface has been created.
         mRenderer.setVideoPlayerHelper(0, mVideoPlayerHelper);
-        mRenderer.requestLoad(mMovieName, 0, false);
+        //mRenderer.requestLoad(mMovieName, 0, false);
 
         mGlView.setRenderer(mRenderer);
 
@@ -316,30 +323,24 @@ public class VideoPlayback extends Activity implements
         TrackerManager trackerManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
                 .getTracker(ObjectTracker.getClassType());
-        if (objectTracker == null) {
-            Log.d(
-                    LOGTAG,
-                    "Failed to load tracking data set because the ObjectTracker has not been initialized.");
-            return false;
+
+        // Initialize target finder:
+        TargetFinder targetFinder = objectTracker.getTargetFinder();
+
+        // Start initialization:
+        if (targetFinder.startInit(kAccessKey, kSecretKey)) {
+            targetFinder.waitUntilInitFinished();
         }
 
-        // Create the data sets:
-        dataSetStonesAndChips = objectTracker.createDataSet();
-        if (dataSetStonesAndChips == null) {
-            Log.d(LOGTAG, "Failed to create a new tracking data.");
-            return false;
-        }
+        int resultCode = targetFinder.getInitState();
+        if (resultCode != TargetFinder.INIT_SUCCESS) {
+            if (resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION) {
+                mInitErrorCode = UPDATE_ERROR_NO_NETWORK_CONNECTION;
+            } else {
+                mInitErrorCode = UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
+            }
 
-        // Load the data sets:
-        if (!dataSetStonesAndChips.load("StonesAndChips.xml",
-                STORAGE_TYPE.STORAGE_APPRESOURCE)) {
-            Log.d(LOGTAG, "Failed to load data set.");
-            return false;
-        }
-
-        // Activate the data set:
-        if (!objectTracker.activateDataSet(dataSetStonesAndChips)) {
-            Log.d(LOGTAG, "Failed to activate data set.");
+            Log.e(LOGTAG, "Failed to initialize target finder.");
             return false;
         }
 
@@ -352,13 +353,16 @@ public class VideoPlayback extends Activity implements
         // Indicate if the trackers were started correctly
         boolean result = true;
 
-        Tracker objectTracker = TrackerManager.getInstance().getTracker(
-                ObjectTracker.getClassType());
-        if (objectTracker != null) {
-            objectTracker.start();
-            Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 2);
-        } else
-            result = false;
+        TrackerManager trackerManager = TrackerManager.getInstance();
+        ObjectTracker objectTracker = (ObjectTracker) trackerManager
+                .getTracker(ObjectTracker.getClassType());
+        objectTracker.start();
+
+        // Start cloud based recognition if we are in scanning mode:
+        TargetFinder targetFinder = objectTracker.getTargetFinder();
+        targetFinder.startRecognition();
+        mFinderStarted = true;
+
 
         return result;
     }
@@ -368,49 +372,31 @@ public class VideoPlayback extends Activity implements
         // Indicate if the trackers were stopped correctly
         boolean result = true;
 
-        Tracker objectTracker = TrackerManager.getInstance().getTracker(
-                ObjectTracker.getClassType());
-        if (objectTracker != null)
+        TrackerManager trackerManager = TrackerManager.getInstance();
+        ObjectTracker objectTracker = (ObjectTracker) trackerManager
+                .getTracker(ObjectTracker.getClassType());
+
+        if (objectTracker != null) {
             objectTracker.stop();
-        else
+
+            // Stop cloud based recognition:
+            TargetFinder targetFinder = objectTracker.getTargetFinder();
+            targetFinder.stop();
+
+            mFinderStarted = false;
+
+            // Clears the trackables
+            targetFinder.clearTrackables();
+        } else {
             result = false;
+        }
 
         return result;
     }
 
     @Override
     public boolean doUnloadTrackersData() {
-        // Indicate if the trackers were unloaded correctly
-        boolean result = true;
-
-        // Get the image tracker:
-        TrackerManager trackerManager = TrackerManager.getInstance();
-        ObjectTracker objectTracker = (ObjectTracker) trackerManager
-                .getTracker(ObjectTracker.getClassType());
-        if (objectTracker == null) {
-            Log.d(
-                    LOGTAG,
-                    "Failed to destroy the tracking data set because the ObjectTracker has not been initialized.");
-            return false;
-        }
-
-        if (dataSetStonesAndChips != null) {
-            if (objectTracker.getActiveDataSet(0) == dataSetStonesAndChips
-                    && !objectTracker.deactivateDataSet(dataSetStonesAndChips)) {
-                Log.d(
-                        LOGTAG,
-                        "Failed to destroy the tracking data set StonesAndChips because the data set could not be deactivated.");
-                result = false;
-            } else if (!objectTracker.destroyDataSet(dataSetStonesAndChips)) {
-                Log.d(LOGTAG,
-                        "Failed to destroy the tracking data set StonesAndChips.");
-                result = false;
-            }
-
-            dataSetStonesAndChips = null;
-        }
-
-        return result;
+        return true;
     }
 
     @Override
@@ -527,33 +513,49 @@ public class VideoPlayback extends Activity implements
     }
 
     @Override
-    public void onVuforiaUpdate(State state) {
+    public void onVuforiaUpdate(State state) {// Get the tracker manager:
+        TrackerManager trackerManager = TrackerManager.getInstance();
+
+        // Get the object tracker:
+        ObjectTracker objectTracker = (ObjectTracker) trackerManager
+                .getTracker(ObjectTracker.getClassType());
+
+        // Get the target finder:
+        TargetFinder finder = objectTracker.getTargetFinder();
+
+        // Check if there are new results available:
+        final int statusCode = finder.updateSearchResults();
+
+        // Show a message if we encountered an error:
+        if (statusCode < 0) {
+
+            boolean closeAppAfterError = (
+                    statusCode == UPDATE_ERROR_NO_NETWORK_CONNECTION ||
+                            statusCode == UPDATE_ERROR_SERVICE_NOT_AVAILABLE);
+            Log.e(LOGTAG, "ci sono problemi!");
+            //showErrorMessage(statusCode, state.getFrame().getTimeStamp(), closeAppAfterError);
+
+        } else if (statusCode == TargetFinder.UPDATE_RESULTS_AVAILABLE) {
+            // Process new search results
+            if (finder.getResultCount() > 0) {
+                TargetSearchResult result = finder.getResult(0);
+
+                // Check if this target is suitable for tracking:
+                if (result.getTrackingRating() > 0) {
+                    Trackable trackable = finder.enableTracking(result);
+
+                    if (mExtendedTracking)
+                        trackable.startExtendedTracking();
+                }
+            }
+        }
     }
 
-
-    public boolean menuProcess(int command) {
-
-        boolean result = true;
-
-        switch (command) {
-            case CMD_BACK:
-                finish();
-                break;
-
-            case CMD_FULLSCREEN_VIDEO:
-                mPlayFullscreenVideo = !mPlayFullscreenVideo;
-
-                if (mVideoPlayerHelper.getStatus() == VideoPlayerHelper.MEDIA_STATE.PLAYING) {
-                    // If it is playing then we pause it
-                    mVideoPlayerHelper.pause();
-
-                    mVideoPlayerHelper.play(true,
-                            videoSeekPosition);
-                }
-                break;
-
+    public void setUrl(String url) {
+        if (mMovieName != url) {
+            mMovieName = url;
+//            mRenderer.requestLoad(mMovieName, mSeekPosition,
+//                    false);
         }
-
-        return result;
     }
 }

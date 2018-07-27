@@ -28,6 +28,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
+import com.thoughtworks.onboarding.AppHelper;
 import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
@@ -72,8 +73,8 @@ public class CloudReco extends Activity implements ImageTrackerManager,
     static final int HIDE_LOADING_DIALOG = 0;
     static final int SHOW_LOADING_DIALOG = 1;
     private static final String LOGTAG = "CloudReco";
-    private static final String kAccessKey = "154a01ae8b006ed397af3631174f0829575e90fe";
-    private static final String kSecretKey = "efc010d47c27f49a481185565a0656ff07b1b7cb";
+    private static final String kAccessKey = AppHelper.kAccessKey;
+    private static final String kSecretKey = AppHelper.kSecretKey;
     private UpdateTargetCallback vuforiaAppSession;
     // Our OpenGL view:
     private SampleApplicationGLView mGlView;
