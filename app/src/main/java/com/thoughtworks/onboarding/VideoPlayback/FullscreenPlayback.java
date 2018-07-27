@@ -32,7 +32,6 @@ import android.view.View;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-
 import com.thoughtworks.onboarding.R;
 
 import java.util.concurrent.locks.ReentrantLock;

@@ -1,20 +1,9 @@
-/*===============================================================================
-Copyright (c) 2016 PTC Inc. All Rights Reserved.
-
-Copyright (c) 2012-2015 Qualcomm Connected Experiences, Inc. All Rights Reserved.
-
-Vuforia is a trademark of PTC Inc., registered in the United States and other 
-countries.
-===============================================================================*/
-
-
 package com.thoughtworks.onboarding.VideoPlayback;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -67,7 +56,7 @@ public class VideoPlayerHelper implements OnPreparedListener,
 
     // Loads a movie from a file in the assets folder
     @SuppressLint("NewApi")
-    public boolean load(String filename, MEDIA_TYPE requestedType,
+    public boolean load(String url, MEDIA_TYPE requestedType,
                         boolean playOnTextureImmediately, int seekPosition) {
         // If the client requests that we should be able to play ON_TEXTURE,
         // then we need to create a MediaPlayer:
@@ -94,19 +83,7 @@ public class VideoPlayerHelper implements OnPreparedListener,
                     try {
                         mMediaPlayer = new MediaPlayer();
 
-                        // This example shows how to load the movie from the
-                        // assets folder of the app
-                        // However, if you would like to load the movie from the
-                        // sdcard or from a network location
-                        // simply comment the three lines below
-//                        AssetFileDescriptor afd = mParentActivity.getAssets()
-//                                .openFd(filename);
-//                        mMediaPlayer.setDataSource(afd.getFileDescriptor(),
-//                                afd.getStartOffset(), afd.getLength());
-//                        afd.close();
-
-                        // and uncomment this one
-                        mMediaPlayer.setDataSource(filename);
+                        mMediaPlayer.setDataSource(url);
 
                         mMediaPlayer.setOnPreparedListener(this);
                         mMediaPlayer.setOnBufferingUpdateListener(this);
@@ -142,7 +119,7 @@ public class VideoPlayerHelper implements OnPreparedListener,
             }
 
             // We store the parameters for further use
-            mMovieName = filename;
+            mMovieName = url;
             mSeekPosition = seekPosition;
 
             if (canBeFullscreen && canBeOnTexture)

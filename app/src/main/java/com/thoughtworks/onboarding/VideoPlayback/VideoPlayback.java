@@ -41,8 +41,7 @@ import static com.vuforia.TargetFinder.UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
 
 
 // The AR activity for the VideoPlayback sample.
-public class VideoPlayback extends Activity implements
-        ImageTrackerManager {
+public class VideoPlayback extends Activity implements ImageTrackerManager {
     private static final String LOGTAG = "VideoPlayback";
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
@@ -113,8 +112,6 @@ public class VideoPlayback extends Activity implements
     // We want to load specific textures from the APK, which we will later
     // use for rendering.
     private void loadTextures() {
-        mTextures.add(Texture.loadTextureFromApk(
-                "VideoPlayback/TextureTransparent.png", getAssets()));
         mTextures.add(Texture.loadTextureFromApk(
                 "VideoPlayback/TextureTransparent.png", getAssets()));
     }

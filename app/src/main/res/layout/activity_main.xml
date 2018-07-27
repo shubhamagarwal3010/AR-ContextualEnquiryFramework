@@ -13,8 +13,7 @@
         android:text="Dual Augmentation"
         app:layout_constraintBottom_toTopOf="@+id/cloud_image"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
         android:id="@+id/cloud_image"
@@ -24,8 +23,7 @@
         android:text="Cloud Image Targets"
         app:layout_constraintBottom_toTopOf="@+id/cloud_video"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
         android:id="@+id/cloud_video"
@@ -33,10 +31,9 @@
         android:layout_height="wrap_content"
         android:onClick="renderCloudVideoTargets"
         android:text="Cloud Video Targets"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
