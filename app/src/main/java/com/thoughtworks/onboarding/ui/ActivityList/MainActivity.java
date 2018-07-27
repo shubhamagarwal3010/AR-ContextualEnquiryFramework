@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.thoughtworks.onboarding.AugmentedDisplay.AugmentedDisplay;
 import com.thoughtworks.onboarding.R;
+import com.thoughtworks.onboarding.VideoPlayback.VideoPlayback;
 import com.thoughtworks.onboarding.cloud.CloudReco;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void dualAugmentation(View view) {
-        Intent intent = new Intent(MainActivity.this, AugmentedDisplay.class);
+        Intent intent = new Intent(MainActivity.this, VideoPlayback.class);
         startActivity(intent);
     }
 
