@@ -96,7 +96,6 @@ public class CloudReco extends Activity implements ImageTrackerManager {
     private View scanLine;
     private TranslateAnimation scanAnimation;
     private double mLastErrorTime;
-    private boolean mIsDroidDevice = false;
 
     // Called when the activity first starts or needs to be recreated after
     // resuming the application or a configuration change.
@@ -117,10 +116,6 @@ public class CloudReco extends Activity implements ImageTrackerManager {
 
         mTextures = new Vector<Texture>();
         loadTextures();
-
-        mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith(
-                "droid");
-
     }
 
     // We want to load specific textures from the APK, which we will later use
@@ -137,12 +132,6 @@ public class CloudReco extends Activity implements ImageTrackerManager {
         super.onResume();
 
         showProgressIndicator(true);
-
-        // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
 
         vuforiaAppSession.onResume();
     }
