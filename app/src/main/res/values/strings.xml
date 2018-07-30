@@ -36,9 +36,6 @@
     <string name="INIT_LICENSE_ERROR_PRODUCT_TYPE_MISMATCH">Vuforia App key is not valid for this product. Please get a valid key, by logging into your account at developer.vuforia.com and choosing the right product type during project creation.</string>
     <string name="INIT_LICENSE_ERROR_UNKNOWN_ERROR">Failed to initialize Vuforia.</string>
 
-    <string name="menu_back">Vuforia Samples</string>
-    <string name="menu_extended_tracking">Extended Tracking</string>
-
     <string name="splash_screen_description">AR Splash</string>
 
 

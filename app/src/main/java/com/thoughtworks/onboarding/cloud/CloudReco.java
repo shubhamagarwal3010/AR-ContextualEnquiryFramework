@@ -33,9 +33,6 @@ import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
-import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenu;
-import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenuGroup;
-import com.thoughtworks.onboarding.ui.SampleAppMenu.SampleAppMenuInterface;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -53,8 +50,7 @@ import java.util.Vector;
 
 
 // The main activity for the CloudReco sample. 
-public class CloudReco extends Activity implements ImageTrackerManager,
-        SampleAppMenuInterface {
+public class CloudReco extends Activity implements ImageTrackerManager {
     final public static int CMD_BACK = -1;
     final public static int CMD_EXTENDED_TRACKING = 1;
     // These codes match the ones defined in TargetFinder in Vuforia.jar
@@ -80,7 +76,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
     private SampleApplicationGLView mGlView;
     // Our renderer:
     private CloudRecoRenderer mRenderer;
-    private SampleAppMenu mSampleAppMenu;
     private boolean mExtendedTracking = false;
     private boolean mFinderStarted = false;
     private boolean mStopFinderIfStarted = false;
@@ -101,7 +96,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
     private View scanLine;
     private TranslateAnimation scanAnimation;
     private double mLastErrorTime;
-    private boolean mIsDroidDevice = false;
 
     // Called when the activity first starts or needs to be recreated after
     // resuming the application or a configuration change.
@@ -122,10 +116,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
 
         mTextures = new Vector<Texture>();
         loadTextures();
-
-        mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith(
-                "droid");
-
     }
 
     // We want to load specific textures from the APK, which we will later use
@@ -142,12 +132,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
         super.onResume();
 
         showProgressIndicator(true);
-
-        // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
 
         vuforiaAppSession.onResume();
     }
@@ -411,9 +395,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Process the Gestures
-        if (mSampleAppMenu != null && mSampleAppMenu.processEvent(event))
-            return true;
 
         return mGestureDetector.onTouchEvent(event);
     }
@@ -486,10 +467,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
             loadingDialogHandler.sendEmptyMessage(HIDE_LOADING_DIALOG);
 
             mUILayout.setBackgroundColor(Color.TRANSPARENT);
-
-            mSampleAppMenu = new SampleAppMenu(this, this, "Cloud Reco",
-                    mGlView, mUILayout, null);
-            setSampleAppMenuSettings();
 
         } else {
             Log.e(LOGTAG, exception.getString());
@@ -643,74 +620,6 @@ public class CloudReco extends Activity implements ImageTrackerManager,
 
         TrackerManager tManager = TrackerManager.getInstance();
         tManager.deinitTracker(ObjectTracker.getClassType());
-
-        return result;
-    }
-
-    // This method sets the menu's settings
-    private void setSampleAppMenuSettings() {
-        SampleAppMenuGroup group;
-
-        group = mSampleAppMenu.addGroup("", false);
-        group.addTextItem(getString(R.string.menu_back), -1);
-
-        group = mSampleAppMenu.addGroup("", true);
-        group.addSelectionItem(getString(R.string.menu_extended_tracking),
-                CMD_EXTENDED_TRACKING, false);
-
-        mSampleAppMenu.attachMenu();
-    }
-
-    @Override
-    public boolean menuProcess(int command) {
-        boolean result = true;
-
-        switch (command) {
-            case CMD_BACK:
-                finish();
-                break;
-
-            case CMD_EXTENDED_TRACKING:
-                TrackerManager trackerManager = TrackerManager.getInstance();
-                ObjectTracker objectTracker = (ObjectTracker) trackerManager
-                        .getTracker(ObjectTracker.getClassType());
-
-                TargetFinder targetFinder = objectTracker.getTargetFinder();
-
-                if (targetFinder.getNumImageTargets() == 0) {
-                    result = true;
-                }
-
-                for (int tIdx = 0; tIdx < targetFinder.getNumImageTargets(); tIdx++) {
-                    Trackable trackable = targetFinder.getImageTarget(tIdx);
-
-                    if (!mExtendedTracking) {
-                        if (!trackable.startExtendedTracking()) {
-                            Log.e(LOGTAG,
-                                    "Failed to start extended tracking target");
-                            result = false;
-                        } else {
-                            Log.d(LOGTAG,
-                                    "Successfully started extended tracking target");
-                        }
-                    } else {
-                        if (!trackable.stopExtendedTracking()) {
-                            Log.e(LOGTAG,
-                                    "Failed to stop extended tracking target");
-                            result = false;
-                        } else {
-                            Log.d(LOGTAG,
-                                    "Successfully started extended tracking target");
-                        }
-                    }
-                }
-
-                if (result)
-                    mExtendedTracking = !mExtendedTracking;
-
-                break;
-
-        }
 
         return result;
     }
