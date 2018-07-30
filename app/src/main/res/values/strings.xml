@@ -41,4 +41,11 @@
 
     <string name="splash_screen_description">AR Splash</string>
 
+
+    <string name="title_ar_intro1" translatable="false">Configure Image Targets</string>
+    <string name="title_ar_intro2" translatable="false">Scan Image Targets</string>
+
+    <string name="description_ar_intro1" translatable="false">Configure image targets in Vuforia portal and add respective augmented resourses</string>
+    <string name="description_ar_intro2" translatable="false">Scan configured image targets and have fun!!</string>
+
 </resources>

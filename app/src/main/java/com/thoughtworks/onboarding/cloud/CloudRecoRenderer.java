@@ -161,6 +161,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
                 ImageTarget imageTarget = (ImageTarget) trackable;
                 TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
+
                 // Renders the Augmentation View with the 3D Book data Panel
                 renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
             }

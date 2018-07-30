@@ -11,50 +11,38 @@ package com.thoughtworks.onboarding.ui.ActivityList;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
-import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.RelativeLayout;
-
+import android.support.v7.app.AppCompatActivity;
 import com.thoughtworks.onboarding.R;
 
 
-public class SplashScreenActivity extends Activity {
 
-    private static long SPLASH_MILLIS = 1000;
+public class SplashScreenActivity extends AppCompatActivity {
+    private final Handler waitHandler = new Handler();
+    private final Runnable waitCallback = new Runnable() {
+        @Override
+        public void run() {
+            Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    };
 
+    private ViewDataBinding binding;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        LayoutInflater inflater = LayoutInflater.from(this);
-        RelativeLayout layout = (RelativeLayout) inflater.inflate(
-                R.layout.splash_screen, null, false);
-
-        addContentView(layout, new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-
-                Intent intent = new Intent(SplashScreenActivity.this,
-                        MainActivity.class);
-                startActivity(intent);
-
-            }
-
-        }, SPLASH_MILLIS);
+        binding = DataBindingUtil.setContentView(this, R.layout.splash_screen);
+        waitHandler.postDelayed(waitCallback, 2000);
     }
 
+    @Override
+    protected void onDestroy() {
+        waitHandler.removeCallbacks(waitCallback);
+        super.onDestroy();
+    }
 }

@@ -16,6 +16,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        startTutorial();
+
+    }
+
+
+    private void startTutorial()
+    {
+        Intent intent = new Intent(MainActivity.this,TutorialActivity.class);
+        startActivity(intent);
     }
 
     public void dualAugmentation(View view) {
