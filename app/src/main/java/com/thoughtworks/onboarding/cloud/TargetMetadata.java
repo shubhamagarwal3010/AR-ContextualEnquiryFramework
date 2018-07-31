@@ -2,12 +2,13 @@ package com.thoughtworks.onboarding.cloud;
 
 public class TargetMetadata {
 
-    public MediaType mediaType;
-    public String url;
+    private Data data;
+    private String[] error;
+    private String[] message;
 
-    public enum MediaType {
-        IMAGE,
-        VIDEO
+    public Data getData() {
+        return data;
     }
+
 
 }

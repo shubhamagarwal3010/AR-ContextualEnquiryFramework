@@ -9,6 +9,8 @@ countries.
 
 package com.thoughtworks.onboarding.cloud;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -153,17 +155,22 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
             mActivity.stopFinderIfStarted();
 
             for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
-                System.out.println("Check****");
                 TrackableResult result = state.getTrackableResult(tIdx);
                 Trackable trackable = result.getTrackable();
                 // The assumption is that we always scan images / static content for AR.
                 // TODO: This might fail if we intend to go with video scanning, change accordingly
                 ImageTarget imageTarget = (ImageTarget) trackable;
                 TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+                if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.HYPERLINK) {
+                    String url = targetMetadata.getData().getMainContent().getUrl();
 
 
-                // Renders the Augmentation View with the 3D Book data Panel
-                renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/"));
+                    mActivity.startActivity(browserIntent);
+                } else {
+                    // Renders the Augmentation View with the 3D Book data Panel
+                    renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
+                }
             }
 
 
@@ -180,7 +187,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
     private void renderAugmentation(TrackableResult trackableResult, float[] projectionMatrix, TargetMetadata metadata) {
 
 
-        Texture t = Texture.loadTextureFromUrl(mActivity, metadata.url);
+        Texture t = Texture.loadTextureFromUrl(mActivity, metadata.getData().getMainContent().getUrl());
 
 
         GLES20.glGenTextures(1, t.mTextureID, 0);

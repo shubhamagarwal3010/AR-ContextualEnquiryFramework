@@ -458,7 +458,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                     .getTrackable();
             TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
-            String newUrl = targetMetadata.url;
+            String newUrl = targetMetadata.getData().getMainContent().getUrl();
 
             if (mVideoPlayerHelper != null && !newUrl.equals(url)) {
                 mActivity.setUrl(newUrl);
