@@ -22,7 +22,9 @@ import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.TutorialActivity;
+import com.thoughtworks.onboarding.utils.Constants;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
+import com.thoughtworks.onboarding.utils.Prefs;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
 import com.vuforia.CameraDevice;
@@ -82,7 +84,10 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
-        startTutorial();
+
+        if (!Prefs.getBoolean(Constants.PREF_IS_FIRST_TIME, false)) {
+            startTutorial();
+        }
         updateTargetCallback = new UpdateTargetCallback(this);
 
         startLoadingAnimation();

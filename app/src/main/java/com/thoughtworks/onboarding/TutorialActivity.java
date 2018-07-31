@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
+import com.thoughtworks.onboarding.utils.Constants;
+import com.thoughtworks.onboarding.utils.Prefs;
 
 public class TutorialActivity extends IntroActivity {
 
@@ -11,6 +13,9 @@ public class TutorialActivity extends IntroActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        Prefs.putBoolean(Constants.PREF_IS_FIRST_TIME, true);
 
         setButtonBackVisible(false);
         setButtonNextVisible(false);
