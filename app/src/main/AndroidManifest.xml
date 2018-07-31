@@ -53,6 +53,7 @@
         android:label="@string/app_name"
         android:launchMode="singleTask"
         android:supportsRtl="true"
+        android:name=".ui.ActivityList.MyApplication"
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name=".ui.ActivityList.SplashScreenActivity"
