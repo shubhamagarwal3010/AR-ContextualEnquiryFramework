@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.thoughtworks.onboarding">
+
     <!--
         The application's compatibility with one or more versions of the Android
         platform.
@@ -27,10 +28,10 @@
     -->
     <uses-feature android:name="android.hardware.camera" />
 
-    <!--         Add this permission to get access to the camera. -->
+    <!-- Add this permission to get access to the camera. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!--         Add this permission to allow opening network sockets. -->
+    <!-- Add this permission to allow opening network sockets. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -45,7 +46,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-
     <application
         android:allowBackup="true"
         android:description="@string/app_description"
@@ -55,7 +55,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
         <activity
-            android:name=".ui.ActivityList.SplashScreenActivity"
+            android:name=".SplashScreenActivity"
             android:configChanges="orientation|keyboardHidden"
             android:noHistory="true"
             android:screenOrientation="portrait">
@@ -66,23 +66,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.ActivityList.MainActivity"
+            android:name=".TutorialActivity"
             android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.ActivityList.TutorialActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".AugmentedDisplay.AugmentedDisplay"
-            android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
-            android:launchMode="singleTask"
-            android:theme="@style/SampleAppsTheme" />
         <activity
             android:name=".VideoPlayback.VideoPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
-
     </application>
 
 </manifest>

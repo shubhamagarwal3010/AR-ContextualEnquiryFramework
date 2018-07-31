@@ -21,6 +21,7 @@ import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.TutorialActivity;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -81,7 +82,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
-
+        startTutorial();
         updateTargetCallback = new UpdateTargetCallback(this);
 
         startLoadingAnimation();
@@ -109,11 +110,17 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         mVideoPlayerHelper = new VideoPlayerHelper(this);
     }
 
+
+    private void startTutorial() {
+        Intent intent = new Intent(VideoPlayback.this, TutorialActivity.class);
+        startActivity(intent);
+    }
+
     // We want to load specific textures from the APK, which we will later
     // use for rendering.
     private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk(
-                "VideoPlayback/TextureTransparent.png", getAssets()));
+                "TextureTransparent.png", getAssets()));
     }
 
     // Called when the activity will start interacting with the user.
