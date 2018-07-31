@@ -83,12 +83,6 @@
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
 
-        <activity
-            android:name=".cloud.CloudReco"
-            android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
-            android:launchMode="singleTask"
-            android:theme="@style/SampleAppsTheme" />
-
     </application>
 
 </manifest>

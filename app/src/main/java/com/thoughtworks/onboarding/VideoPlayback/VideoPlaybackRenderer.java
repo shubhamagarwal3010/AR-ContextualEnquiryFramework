@@ -1,6 +1,8 @@
 package com.thoughtworks.onboarding.VideoPlayback;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -13,7 +15,10 @@ import com.google.gson.Gson;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
 import com.thoughtworks.onboarding.SampleApplication.SampleAppRendererControl;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.cloud.MainContent;
 import com.thoughtworks.onboarding.cloud.TargetMetadata;
+import com.thoughtworks.onboarding.utils.CubeShaders;
+import com.thoughtworks.onboarding.utils.Image;
 import com.thoughtworks.onboarding.utils.SampleMath;
 import com.thoughtworks.onboarding.utils.SampleUtils;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -23,6 +28,7 @@ import com.vuforia.Matrix44F;
 import com.vuforia.Renderer;
 import com.vuforia.State;
 import com.vuforia.Tool;
+import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
 import com.vuforia.Vec2F;
 import com.vuforia.Vec3F;
@@ -44,6 +50,7 @@ import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_
 // The renderer class for the VideoPlayback sample.
 public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppRendererControl {
     private static final String LOGTAG = "VideoPlaybackRenderer";
+    private static final float OBJECT_SCALE_FLOAT = 0.01f;
     static int NUM_QUAD_INDEX = 6;
     UpdateTargetCallback updateTargetCallback;
     SampleAppRenderer mSampleAppRenderer;
@@ -97,6 +104,12 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
     private boolean mLoadRequested;
     private Vector<Texture> mTextures;
     private String url = "";
+    private int shaderProgramID;
+    private int vertexHandle;
+    private int textureCoordHandle;
+    private int mvpMatrixHandle;
+    private int texSampler2DHandle;
+    private Image mImage = new Image();
 
 
     public VideoPlaybackRenderer(VideoPlayback activity,
@@ -301,6 +314,20 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, Vuforia.requiresAlpha() ? 0.0f
                 : 1.0f);
 
+
+        shaderProgramID = SampleUtils.createProgramFromShaderSrc(
+                CubeShaders.CUBE_MESH_VERTEX_SHADER,
+                CubeShaders.CUBE_MESH_FRAGMENT_SHADER);
+
+        vertexHandle = GLES20.glGetAttribLocation(shaderProgramID,
+                "vertexPosition");
+        textureCoordHandle = GLES20.glGetAttribLocation(shaderProgramID,
+                "vertexTexCoord");
+        mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramID,
+                "modelViewProjectionMatrix");
+        texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID,
+                "texSampler2D");
+
         // Now generate the OpenGL texture objects and add settings
         for (Texture t : mTextures) {
             // Here we create the textures for the keyframe
@@ -449,6 +476,100 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         isTracking = false;
         targetPositiveDimensions.setData(temp);
 
+
+        TrackableResult trackableResult = state.getTrackableResult(0);
+
+        if (trackableResult == null) {
+            return;
+        }
+        for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
+            System.out.println("Check****");
+            TrackableResult result = state.getTrackableResult(tIdx);
+            Trackable trackable = result.getTrackable();
+            // The assumption is that we always scan images / static content for AR.
+            // TODO: This might fail if we intend to go with video scanning, change accordingly
+            ImageTarget imageTarget = (ImageTarget) trackable;
+            TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+
+
+            if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
+                // Renders the Augmentation View with the 3D Book data Panel
+                renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
+            } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.HYPERLINK) {
+                String url = targetMetadata.getData().getMainContent().getUrl();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                mActivity.startActivity(browserIntent);
+            } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.VIDEO) {
+                renderVideo(state, projectionMatrix, temp);
+            }
+        }
+
+
+    }
+
+    private void renderAugmentation(TrackableResult trackableResult, float[] projectionMatrix, TargetMetadata metadata) {
+
+
+        Texture t = Texture.loadTextureFromUrl(mActivity, metadata.getData().getMainContent().getUrl());
+
+
+        GLES20.glGenTextures(1, t.mTextureID, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
+                t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE, t.mData);
+
+
+        Matrix44F modelViewMatrix_Vuforia = Tool
+                .convertPose2GLMatrix(trackableResult.getPose());
+        float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
+
+        int textureIndex = 0;
+
+        // deal with the modelview and projection matrices
+        float[] modelViewProjection = new float[16];
+        Matrix.translateM(modelViewMatrix, 0, 0.0f, 0.0f, OBJECT_SCALE_FLOAT);
+        Matrix.scaleM(modelViewMatrix, 0, OBJECT_SCALE_FLOAT,
+                OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
+        Matrix.multiplyMM(modelViewProjection, 0, projectionMatrix, 0, modelViewMatrix, 0);
+
+        // activate the shader program and bind the vertex/normal/tex coords
+        GLES20.glUseProgram(shaderProgramID);
+        GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false,
+                0, mImage.getVertices());
+        GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT,
+                false, 0, mImage.getTexCoords());
+
+        GLES20.glEnableVertexAttribArray(vertexHandle);
+        GLES20.glEnableVertexAttribArray(textureCoordHandle);
+
+        // activate texture 0, bind it, and pass to shader
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+                t.mTextureID[0]);
+        GLES20.glUniform1i(texSampler2DHandle, 0);
+
+        // pass the model view matrix to the shader
+        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
+                modelViewProjection, 0);
+
+        // finally draw the teapot
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mImage.getNumObjectIndex(),
+                GLES20.GL_UNSIGNED_SHORT, mImage.getIndices());
+
+        // disable the enabled arrays
+        GLES20.glDisableVertexAttribArray(vertexHandle);
+        GLES20.glDisableVertexAttribArray(textureCoordHandle);
+
+        SampleUtils.checkGLError("CloudReco renderFrame");
+    }
+
+
+    private void renderVideo(State state, float[] projectionMatrix, float[] temp) {
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
             // Get the trackable:
@@ -712,7 +833,6 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
         Renderer.getInstance().end();
-
     }
 
 

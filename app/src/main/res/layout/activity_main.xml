@@ -11,26 +11,17 @@
         android:layout_height="wrap_content"
         android:onClick="dualAugmentation"
         android:text="Dual Augmentation"
-        app:layout_constraintBottom_toTopOf="@+id/cloud_image"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <Button
-        android:id="@+id/cloud_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="renderCloudImageTargets"
-        android:text="Cloud Image Targets"
         app:layout_constraintBottom_toTopOf="@+id/cloud_video"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
 
     <Button
         android:id="@+id/cloud_video"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="renderCloudVideoTargets"
-        android:text="Cloud Video Targets"
+        android:text="Cloud Targets"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

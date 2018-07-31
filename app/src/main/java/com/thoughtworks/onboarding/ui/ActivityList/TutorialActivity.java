@@ -6,7 +6,7 @@ import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
 import com.thoughtworks.onboarding.R;
 
-public class TutorialActivity extends IntroActivity{
+public class TutorialActivity extends IntroActivity {
 
 
     @Override

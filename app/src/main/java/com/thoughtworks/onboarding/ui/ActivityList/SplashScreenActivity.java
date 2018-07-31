@@ -9,15 +9,14 @@ countries.
 
 package com.thoughtworks.onboarding.ui.ActivityList;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import com.thoughtworks.onboarding.R;
 
+import com.thoughtworks.onboarding.R;
 
 
 public class SplashScreenActivity extends AppCompatActivity {
