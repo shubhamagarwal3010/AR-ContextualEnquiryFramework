@@ -23,6 +23,7 @@ import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.TutorialActivity;
 import com.thoughtworks.onboarding.utils.Constants;
+import com.thoughtworks.onboarding.utils.DialogUtils;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.Prefs;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
@@ -246,8 +247,22 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
 
     // Do not exit immediately and instead show the startup screen
     public void onBackPressed() {
-        pauseAll();
-        super.onBackPressed();
+
+
+        new DialogUtils() {
+            @Override
+            public void onPositiveButtonClick() {
+               // pauseAll();
+                finish();
+            }
+
+            @Override
+            public void onNegativeButtonClick() {
+
+            }
+        }.showAlert(this, getString(R.string.exit_alert));
+
+       // super.onBackPressed();
     }
 
     private void startLoadingAnimation() {
