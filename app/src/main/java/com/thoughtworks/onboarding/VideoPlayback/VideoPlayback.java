@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
-import com.thoughtworks.onboarding.AppHelper;
+import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
@@ -49,8 +49,6 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     private static final String LOGTAG = "VideoPlayback";
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
-    private static final String kAccessKey = AppHelper.kAccessKey;
-    private static final String kSecretKey = AppHelper.kSecretKey;
     // Movie for the Targets:
     UpdateTargetCallback updateTargetCallback;
     Activity mActivity;
@@ -352,7 +350,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         TargetFinder targetFinder = objectTracker.getTargetFinder();
 
         // Start initialization:
-        if (targetFinder.startInit(kAccessKey, kSecretKey)) {
+        if (targetFinder.startInit(BuildConfig.VUFORIA_ACCESS_KEY, BuildConfig.VUFORIA_SECRET_KEY)) {
             targetFinder.waitUntilInitFinished();
         }
 

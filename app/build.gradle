@@ -4,6 +4,10 @@ def VUFORIA_SDK_DIR = '../'
 def NATIVE_LIB_DIR = 'vuforia/lib'
 def JAR_DIR = 'vuforia/java/Vuforia'
 
+def vuforiaLicenceKey = System.getenv('VUFORIA_LICENCE_KEY')
+def vuforiaAccessKey = System.getenv('VUFORIA_ACCESS_KEY')
+def vuforiaSecretKey = System.getenv('VUFORIA_SECRET_KEY')
+
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
@@ -35,13 +39,20 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String", "VUFORIA_LICENCE_KEY", "\"$vuforiaLicenceKey\""
+            buildConfigField "String", "VUFORIA_ACCESS_KEY", "\"$vuforiaAccessKey\""
+            buildConfigField "String", "VUFORIA_SECRET_KEY", "\"$vuforiaSecretKey\""
         }
         debug {
             debuggable true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'),
-                    'proguard-rules.pro'
+            minifyEnabled false
+
+            buildConfigField "String", "VUFORIA_LICENCE_KEY", "\"$vuforiaLicenceKey\""
+            buildConfigField "String", "VUFORIA_ACCESS_KEY", "\"$vuforiaAccessKey\""
+            buildConfigField "String", "VUFORIA_SECRET_KEY", "\"$vuforiaSecretKey\""
         }
     }
 }

@@ -17,7 +17,7 @@ import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
 
-import com.thoughtworks.onboarding.AppHelper;
+import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
 import com.vuforia.CameraDevice;
 import com.vuforia.Device;
@@ -374,7 +374,7 @@ public class UpdateTargetCallback implements UpdateCallbackInterface {
         protected Boolean doInBackground(Void... params) {
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mLifecycleLock) {
-                Vuforia.setInitParameters(mActivity, vuforiaRenderingMethodFlag, AppHelper.LICENSE_KEY);
+                Vuforia.setInitParameters(mActivity, vuforiaRenderingMethodFlag, BuildConfig.VUFORIA_LICENCE_KEY);
                 do {
                     // Vuforia.init() blocks until an initialization step is
                     // complete, then it proceeds to the next step and reports
