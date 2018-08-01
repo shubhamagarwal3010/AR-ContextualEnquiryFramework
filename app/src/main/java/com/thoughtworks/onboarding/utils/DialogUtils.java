@@ -6,8 +6,7 @@ import android.content.DialogInterface;
 
 public abstract class DialogUtils {
 
-    public void showAlert(final Activity mactivity, String msg)
-    {
+    public void showAlert(final Activity mactivity, String msg) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mactivity);
 
         alertDialog.setMessage(msg);
@@ -30,6 +29,7 @@ public abstract class DialogUtils {
     }
 
     public abstract void onPositiveButtonClick();
+
     public abstract void onNegativeButtonClick();
 
 }

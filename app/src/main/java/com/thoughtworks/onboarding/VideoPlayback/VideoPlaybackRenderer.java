@@ -491,8 +491,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
             ImageTarget imageTarget = (ImageTarget) trackable;
             TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
-            System.out.println("payload: "+ new Gson().toJson(targetMetadata));
-            System.out.println("Check****"+targetMetadata.getData().getMainContent().getMediaType());
+            System.out.println("payload: " + new Gson().toJson(targetMetadata));
+            System.out.println("Check****" + targetMetadata.getData().getMainContent().getMediaType());
             if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
                 // Renders the Augmentation View with the 3D Book data Panel
                 renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
@@ -502,8 +502,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 mActivity.startActivity(browserIntent);
             } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.VIDEO) {
                 renderVideo(state, projectionMatrix, temp);
-            }
-            else
+            } else
                 System.out.println("in other ");
         }
 

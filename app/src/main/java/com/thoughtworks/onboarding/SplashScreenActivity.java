@@ -10,8 +10,6 @@ countries.
 package com.thoughtworks.onboarding;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -30,7 +28,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         }
     };
 
-   // private ViewDataBinding binding;
+    // private ViewDataBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

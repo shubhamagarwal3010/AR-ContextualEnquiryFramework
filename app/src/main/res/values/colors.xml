@@ -8,9 +8,4 @@
     <color name="bg_color">#f7f7f7</color>
     <color name="black_effective">#2a2a2a</color>
 
-    <color name="color_material_metaphor">#039BE5</color>
-    <color name="color_material_bold">#EC407A</color>
-
-    <color name="color_dark_material_metaphor">#0277BD</color>
-    <color name="color_dark_material_bold">#D81B60</color>
 </resources>

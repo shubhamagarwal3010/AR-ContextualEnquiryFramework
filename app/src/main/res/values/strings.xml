@@ -37,12 +37,6 @@
     <string name="INIT_LICENSE_ERROR_UNKNOWN_ERROR">Failed to initialize Vuforia.</string>
 
 
-    <string name="title_ar_intro1" translatable="false">Configure Image Targets</string>
-    <string name="title_ar_intro2" translatable="false">Scan Image Targets</string>
-
-    <string name="description_ar_intro1" translatable="false">Configure image targets in Vuforia portal and add respective augmented resourses</string>
-    <string name="description_ar_intro2" translatable="false">Scan configured image targets and have fun!!</string>
-
     <string name="exit_alert">Are you sure want to exit from the app?</string>
 
 </resources>

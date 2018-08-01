@@ -21,11 +21,8 @@ import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
 import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
-import com.thoughtworks.onboarding.TutorialActivity;
-import com.thoughtworks.onboarding.utils.Constants;
 import com.thoughtworks.onboarding.utils.DialogUtils;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
-import com.thoughtworks.onboarding.utils.Prefs;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
 import com.vuforia.CameraDevice;
@@ -83,10 +80,6 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
-
-        if (!Prefs.getBoolean(Constants.PREF_IS_FIRST_TIME, false)) {
-            startTutorial();
-        }
         updateTargetCallback = new UpdateTargetCallback(this);
 
         startLoadingAnimation();
@@ -112,12 +105,6 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         // Create the video player helper that handles the playback of the movie
         // for the targets:
         mVideoPlayerHelper = new VideoPlayerHelper(this);
-    }
-
-
-    private void startTutorial() {
-        Intent intent = new Intent(VideoPlayback.this, TutorialActivity.class);
-        startActivity(intent);
     }
 
     // We want to load specific textures from the APK, which we will later
@@ -250,7 +237,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         new DialogUtils() {
             @Override
             public void onPositiveButtonClick() {
-               // pauseAll();
+                // pauseAll();
                 finish();
             }
 
@@ -260,7 +247,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
             }
         }.showAlert(this, getString(R.string.exit_alert));
 
-       // super.onBackPressed();
+        // super.onBackPressed();
     }
 
     private void startLoadingAnimation() {

@@ -10,6 +10,7 @@ countries.
 
 package com.thoughtworks.onboarding.SampleApplication;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -366,6 +367,7 @@ public class UpdateTargetCallback implements UpdateCallbackInterface {
     }
 
     // An async task to initialize Vuforia asynchronously.
+    @SuppressLint("StaticFieldLeak")
     private class InitVuforiaTask extends AsyncTask<Void, Integer, Boolean> {
         // Initialize with invalid value:
         private int mProgressValue = -1;

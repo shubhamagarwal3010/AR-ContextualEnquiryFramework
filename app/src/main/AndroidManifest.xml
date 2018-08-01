@@ -47,7 +47,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name=".ui.ActivityList.MyApplication"
         android:allowBackup="true"
         android:description="@string/app_description"
         android:icon="@mipmap/app_icon"
@@ -66,9 +65,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".TutorialActivity"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".VideoPlayback.VideoPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
