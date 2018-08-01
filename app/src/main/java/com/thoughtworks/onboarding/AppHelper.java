@@ -2,9 +2,9 @@ package com.thoughtworks.onboarding;
 
 public class AppHelper {
     public static final String LICENSE_KEY =
-            "AZ3xKXD/////AAABmSDKwnmvdUw7skHRn58nCT8rTllrJa1kixEmjNmkgE7V3D1+RPA5ZXokLESffi5nyQmmW05UeI8qZpODWNNvvrOBfai50D7s9ovW44bBHP94+ZcOmHdv9V6OwPUWU648f0gTJX2+3Lv0QoPuEU0G//b41y/uRhyKVPrL7W9Iyt25/pJzcHfNrgVygslVZXU7L/7QEbJcc1OiIJLxa3jivGoOINAuei4dtXT/LASqVXLDLp6FHC4E0DVfVi8g0zn4m6y7IPgTLwca65Wo2lgaxs/8brW/Yt90g5tZ1L1AmgiunImorNRJc1eY8pGnR3xtrw0MAny5UNMSY7/dA9JGJjcQx5d3Vu7YAuwdSBbBayGp";
+            "AdiB2oT/////AAABGYsX8E4CVUX8svWjFRHdSGgYnkP2xtVIPm7QgCo1vtNKfmQuWfDG5JUIMSP6WI3r6Co5eYR4d1m77NInWkrC2SEv5hNlHjwtnaugZbDIxSvJpbPwfiFNIdveRxAg9zfbMmOZXRsNcC0r0vsAQEFzehCzPD+2Gbesq+xCzYv1Deg1YypBMMywMHGyI0aRyss5l8SYAZTbHiBXuZ0E+dqBHMxe7YJyCwDS+StgwbLmg17Movin/exiKSEeNN6jtM0TkrEmZ6+8PqEW2mQZIbQo4kRSwFxgEWV677n2bQNQubIfS1GaipIDHNa85V1l4TwW8puK8koQcs8e6R5N1liHN/ceb5z3BXQywjCGNqsG4ttC";
 
-    public static final String kAccessKey = "154a01ae8b006ed397af3631174f0829575e90fe";
+    public static final String kAccessKey = "cac4d31505d706180724f772ce321555d45959d4";
 
-    public static final String kSecretKey = "efc010d47c27f49a481185565a0656ff07b1b7cb";
+    public static final String kSecretKey = "9791dacd8b7ae1e355191347b2665cb3b5f318b8";
 }

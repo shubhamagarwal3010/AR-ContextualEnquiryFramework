@@ -15,3 +15,18 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keep class com.vuforia.** { *; }
+-keep interface com.vuforia.** { *; }
+-dontwarn com.vuforia.ar.**
+-keep class com.thoughtworks.onboarding.cloud.Data { *; }
+-keep class com.thoughtworks.onboarding.cloud.MainContent { *; }
+-keep class com.thoughtworks.onboarding.cloud.TargetMetadata { *; }
+
+-keepclassmembers class * extends java.lang.Enum {
+<fields>;
+public static **[] values();
+public static ** valueOf(java.lang.String);
+}
+
+#-keep public enum com.thoughworks.onboarding.cloud.MainContent$** { **[] $VALUES; public *; }
