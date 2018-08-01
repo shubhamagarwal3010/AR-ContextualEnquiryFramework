@@ -30,12 +30,14 @@ public class SplashScreenActivity extends AppCompatActivity {
         }
     };
 
-    private ViewDataBinding binding;
+   // private ViewDataBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.splash_screen);
+        //binding = DataBindingUtil.setContentView(this, R.layout.splash_screen);
+
+        setContentView(R.layout.splash_screen);
         waitHandler.postDelayed(waitCallback, 2000);
 
     }
