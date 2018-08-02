@@ -118,7 +118,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     // use for rendering.
     private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk(
-                "loading.png", getAssets()));
+                "TransparentTexture.png", getAssets()));
     }
 
     // Called when the activity will start interacting with the user.
