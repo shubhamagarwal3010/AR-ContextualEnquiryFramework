@@ -30,9 +30,9 @@ import android.widget.RelativeLayout;
 
 import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
-import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
-import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
-import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.VuforiaApplication.ImageTrackerManager;
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaApplicationException;
+import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
@@ -166,7 +166,7 @@ public class CloudReco extends Activity implements ImageTrackerManager {
 
         try {
             vuforiaAppSession.stopAR();
-        } catch (SampleApplicationException e) {
+        } catch (VuforiaApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
 
@@ -443,7 +443,7 @@ public class CloudReco extends Activity implements ImageTrackerManager {
     }
 
     @Override
-    public void onInitARDone(SampleApplicationException exception) {
+    public void onInitARDone(VuforiaApplicationException exception) {
 
         if (exception == null) {
             initApplicationAR();

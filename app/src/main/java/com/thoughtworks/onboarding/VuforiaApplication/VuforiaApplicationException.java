@@ -7,10 +7,10 @@ Vuforia is a trademark of PTC Inc., registered in the United States and other
 countries.
 ===============================================================================*/
 
-package com.thoughtworks.onboarding.SampleApplication;
+package com.thoughtworks.onboarding.VuforiaApplication;
 
 // Used to send back to the activity any error during vuforia processes
-public class SampleApplicationException extends Exception {
+public class VuforiaApplicationException extends Exception {
 
     public static final int INITIALIZATION_FAILURE = 0;
     public static final int VUFORIA_ALREADY_INITIALIZATED = 1;
@@ -26,7 +26,7 @@ public class SampleApplicationException extends Exception {
     private String mString = "";
 
 
-    public SampleApplicationException(int code, String description) {
+    public VuforiaApplicationException(int code, String description) {
         super(description);
         mCode = code;
         mString = description;

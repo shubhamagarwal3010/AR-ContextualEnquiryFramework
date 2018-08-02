@@ -14,7 +14,6 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -23,9 +22,9 @@ import android.widget.RelativeLayout;
 
 import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
-import com.thoughtworks.onboarding.SampleApplication.ImageTrackerManager;
-import com.thoughtworks.onboarding.SampleApplication.SampleApplicationException;
-import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.VuforiaApplication.ImageTrackerManager;
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaApplicationException;
+import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.utils.DialogUtils;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
@@ -119,7 +118,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     // use for rendering.
     private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk(
-                "TextureTransparent.png", getAssets()));
+                "loading.png", getAssets()));
     }
 
     // Called when the activity will start interacting with the user.
@@ -214,7 +213,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
 
         try {
             updateTargetCallback.stopAR();
-        } catch (SampleApplicationException e) {
+        } catch (VuforiaApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
 
@@ -517,7 +516,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     }
 
     @Override
-    public void onInitARDone(SampleApplicationException exception) {
+    public void onInitARDone(VuforiaApplicationException exception) {
 
         if (exception == null) {
             initApplicationAR();

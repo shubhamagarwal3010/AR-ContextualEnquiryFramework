@@ -12,9 +12,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
-import com.thoughtworks.onboarding.SampleApplication.SampleAppRendererControl;
-import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaAppRenderer;
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaAppRendererControl;
+import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.cloud.MainContent;
 import com.thoughtworks.onboarding.cloud.TargetMetadata;
 import com.thoughtworks.onboarding.utils.CubeShaders;
@@ -48,12 +48,12 @@ import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_
 
 
 // The renderer class for the VideoPlayback sample.
-public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppRendererControl {
+public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaAppRendererControl {
     private static final String LOGTAG = "VideoPlaybackRenderer";
     private static final float OBJECT_SCALE_FLOAT = 0.01f;
     static int NUM_QUAD_INDEX = 6;
     UpdateTargetCallback updateTargetCallback;
-    SampleAppRenderer mSampleAppRenderer;
+    VuforiaAppRenderer mVuforiaAppRenderer;
     // Video Playback Textures for the two targets
     int videoPlaybackTextureID[] = new int[1];
     // Trackable dimensions
@@ -118,10 +118,10 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         mActivity = activity;
         updateTargetCallback = session;
         videoQuadTextureCoordsPerTarget = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,};
-        // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting/
+        // VuforiaAppRenderer used to encapsulate the use of RenderingPrimitives setting/
         // the device mode AR/VR and stereo mode
-        mSampleAppRenderer =
-                new SampleAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
+        mVuforiaAppRenderer =
+                new VuforiaAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
 
         // Create an array of the size of the number of targets we have
         mVideoPlayerHelper = null;
@@ -174,7 +174,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         // or after OpenGL ES context was lost (e.g. after onPause/onResume):
         Vuforia.onSurfaceCreated();
 
-        mSampleAppRenderer.onSurfaceCreated();
+        mVuforiaAppRenderer.onSurfaceCreated();
 
 
         if (mVideoPlayerHelper != null) {
@@ -212,7 +212,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         Vuforia.onSurfaceChanged(width, height);
 
         // RenderingPrimitives to be updated when some rendering change is done
-        mSampleAppRenderer.onConfigurationChanged(mIsActive);
+        mVuforiaAppRenderer.onConfigurationChanged(mIsActive);
 
         // Upon every on pause the movie had to be unloaded to release resources
         // Thus, upon every surface create or surface change this has to be
@@ -257,8 +257,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
             setStatus(0, mVideoPlayerHelper.getStatus().getNumericType());
         }
 
-        // Call our function to render content from SampleAppRenderer class
-        mSampleAppRenderer.render();
+        // Call our function to render content from VuforiaAppRenderer class
+        mVuforiaAppRenderer.render();
 
         // Ask whether the target is currently being tracked and if so react
         // to it
@@ -302,7 +302,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         mIsActive = active;
 
         if (mIsActive)
-            mSampleAppRenderer.configureVideoBackground();
+            mVuforiaAppRenderer.configureVideoBackground();
     }
 
 
@@ -444,17 +444,17 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
 
 
     public void updateRenderingPrimitives() {
-        mSampleAppRenderer.updateRenderingPrimitives();
+        mVuforiaAppRenderer.updateRenderingPrimitives();
     }
 
 
     @SuppressLint("InlinedApi")
     // The render function called from SampleAppRendering by using RenderingPrimitives views.
-    // The state is owned by SampleAppRenderer which is controlling it's lifecycle.
+    // The state is owned by VuforiaAppRenderer which is controlling it's lifecycle.
     // State should not be cached outside this method.
     public void renderFrame(State state, float[] projectionMatrix) {
         // Renders video background replacing Renderer.DrawVideoBackground()
-        mSampleAppRenderer.renderVideoBackground();
+        mVuforiaAppRenderer.renderVideoBackground();
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
@@ -509,7 +509,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
                 } else
                     System.out.println("in other ");
             }
-        }else {
+        } else {
             mActivity.startFinderIfStopped();
         }
 

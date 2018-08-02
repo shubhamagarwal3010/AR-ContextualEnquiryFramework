@@ -16,9 +16,9 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
 import com.google.gson.Gson;
-import com.thoughtworks.onboarding.SampleApplication.SampleAppRenderer;
-import com.thoughtworks.onboarding.SampleApplication.SampleAppRendererControl;
-import com.thoughtworks.onboarding.SampleApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaAppRenderer;
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaAppRendererControl;
+import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.utils.CubeShaders;
 import com.thoughtworks.onboarding.utils.Image;
 import com.thoughtworks.onboarding.utils.SampleUtils;
@@ -38,10 +38,10 @@ import javax.microedition.khronos.opengles.GL10;
 
 
 // The renderer class for the CloudReco sample. 
-public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRendererControl {
+public class CloudRecoRenderer implements GLSurfaceView.Renderer, VuforiaAppRendererControl {
     private static final float OBJECT_SCALE_FLOAT = 0.003f;
     private UpdateTargetCallback vuforiaAppSession;
-    private SampleAppRenderer mSampleAppRenderer;
+    private VuforiaAppRenderer mVuforiaAppRenderer;
     private int shaderProgramID;
     private int vertexHandle;
     private int textureCoordHandle;
@@ -58,9 +58,9 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
         vuforiaAppSession = session;
         mActivity = activity;
 
-        // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting
+        // VuforiaAppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
-        mSampleAppRenderer = new SampleAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.010f, 5f);
+        mVuforiaAppRenderer = new VuforiaAppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.010f, 5f);
     }
 
 
@@ -71,7 +71,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
         // or after OpenGL ES context was lost (e.g. after onPause/onResume):
         vuforiaAppSession.onSurfaceCreated();
 
-        mSampleAppRenderer.onSurfaceCreated();
+        mVuforiaAppRenderer.onSurfaceCreated();
     }
 
 
@@ -82,7 +82,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
         vuforiaAppSession.onSurfaceChanged(width, height);
 
         // RenderingPrimitives to be updated when some rendering change is done
-        mSampleAppRenderer.onConfigurationChanged(mIsActive);
+        mVuforiaAppRenderer.onConfigurationChanged(mIsActive);
 
         // Call function to initialize rendering:
         initRendering();
@@ -92,8 +92,8 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
     // Called to draw the current frame.
     @Override
     public void onDrawFrame(GL10 gl) {
-        // Call our function to render content from SampleAppRenderer class
-        mSampleAppRenderer.render();
+        // Call our function to render content from VuforiaAppRenderer class
+        mVuforiaAppRenderer.render();
     }
 
 
@@ -101,7 +101,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
         mIsActive = active;
 
         if (mIsActive)
-            mSampleAppRenderer.configureVideoBackground();
+            mVuforiaAppRenderer.configureVideoBackground();
     }
 
 
@@ -128,17 +128,17 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, SampleAppRende
 
 
     public void updateRenderingPrimitives() {
-        mSampleAppRenderer.updateRenderingPrimitives();
+        mVuforiaAppRenderer.updateRenderingPrimitives();
     }
 
 
     // The render function.
     // The render function called from SampleAppRendering by using RenderingPrimitives views.
-    // The state is owned by SampleAppRenderer which is controlling it's lifecycle.
+    // The state is owned by VuforiaAppRenderer which is controlling it's lifecycle.
     // State should not be cached outside this method.
     public void renderFrame(State state, float[] projectionMatrix) {
         // Renders video background replacing Renderer.DrawVideoBackground()
-        mSampleAppRenderer.renderVideoBackground();
+        mVuforiaAppRenderer.renderVideoBackground();
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glEnable(GLES20.GL_CULL_FACE);

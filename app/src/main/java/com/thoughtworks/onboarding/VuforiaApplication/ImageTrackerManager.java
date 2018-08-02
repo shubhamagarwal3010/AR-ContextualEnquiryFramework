@@ -7,7 +7,7 @@ Vuforia is a trademark of PTC Inc., registered in the United States and other
 countries.
 ===============================================================================*/
 
-package com.thoughtworks.onboarding.SampleApplication;
+package com.thoughtworks.onboarding.VuforiaApplication;
 
 import com.vuforia.State;
 
@@ -43,7 +43,7 @@ public interface ImageTrackerManager {
     // This callback is called after the Vuforia initialization is complete,
     // the trackers are initialized, their data loaded and
     // tracking is ready to start
-    void onInitARDone(SampleApplicationException e);
+    void onInitARDone(VuforiaApplicationException e);
 
 
     // This callback is called every cycle

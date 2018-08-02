@@ -7,11 +7,11 @@ Vuforia is a trademark of PTC Inc., registered in the United States and other
 countries.
 ===============================================================================*/
 
-package com.thoughtworks.onboarding.SampleApplication;
+package com.thoughtworks.onboarding.VuforiaApplication;
 
 import com.vuforia.State;
 
-public interface SampleAppRendererControl {
+public interface VuforiaAppRendererControl {
 
     // This method has to be implemented by the Renderer class which handles the content rendering
     // of the sample, this one is called from SampleAppRendering class for each view inside a loop

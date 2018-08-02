@@ -7,7 +7,7 @@ Vuforia is a trademark of PTC Inc., registered in the United States and other
 countries.
 ===============================================================================*/
 
-package com.thoughtworks.onboarding.SampleApplication;
+package com.thoughtworks.onboarding.VuforiaApplication;
 
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -38,16 +38,16 @@ import com.vuforia.VideoBackgroundConfig;
 import com.vuforia.VideoMode;
 import com.vuforia.ViewList;
 
-public class SampleAppRenderer {
+public class VuforiaAppRenderer {
 
     static final float VIRTUAL_FOV_Y_DEGS = 85.0f;
     static final float M_PI = 3.14159f;
-    private static final String LOGTAG = "SampleAppRenderer";
+    private static final String LOGTAG = "VuforiaAppRenderer";
     float mNearPlane = -1.0f;
     float mFarPlane = -1.0f;
     GLTextureUnit videoBackgroundTex;
     private RenderingPrimitives mRenderingPrimitives = null;
-    private SampleAppRendererControl mRenderingInterface = null;
+    private VuforiaAppRendererControl mRenderingInterface = null;
     private Activity mActivity = null;
     private Renderer mRenderer = null;
     private int currentView = VIEW.VIEW_SINGULAR;
@@ -68,8 +68,8 @@ public class SampleAppRenderer {
     private float touchLocation_x;
     private float touchLocation_y;
 
-    public SampleAppRenderer(SampleAppRendererControl renderingInterface, Activity activity, int deviceMode,
-                             boolean stereo, float nearPlane, float farPlane) {
+    public VuforiaAppRenderer(VuforiaAppRendererControl renderingInterface, Activity activity, int deviceMode,
+                              boolean stereo, float nearPlane, float farPlane) {
         mActivity = activity;
 
         mRenderingInterface = renderingInterface;
@@ -200,7 +200,7 @@ public class SampleAppRenderer {
 
             currentView = viewID;
 
-            // Call renderFrame from the app renderer class which implements SampleAppRendererControl
+            // Call renderFrame from the app renderer class which implements VuforiaAppRendererControl
             // This will be called for MONO, LEFT and RIGHT views, POSTPROCESS will not render the
             // frame
             if (currentView != VIEW.VIEW_POSTPROCESS)
