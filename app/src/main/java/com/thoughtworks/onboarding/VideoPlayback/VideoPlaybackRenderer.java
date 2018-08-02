@@ -476,34 +476,41 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, SampleAppR
         isTracking = false;
         targetPositiveDimensions.setData(temp);
 
+        // Did we find any trackables this frame?
+        if (state.getNumTrackableResults() > 0) {
 
-        TrackableResult trackableResult = state.getTrackableResult(0);
+            TrackableResult trackableResult = state.getTrackableResult(0);
 
-        if (trackableResult == null) {
-            return;
-        }
-        for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
+            if (trackableResult == null) {
+                return;
+            }
 
-            TrackableResult result = state.getTrackableResult(tIdx);
-            Trackable trackable = result.getTrackable();
-            // The assumption is that we always scan images / static content for AR.
-            // TODO: This might fail if we intend to go with video scanning, change accordingly
-            ImageTarget imageTarget = (ImageTarget) trackable;
-            TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+            mActivity.stopFinderIfStarted();
+            for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
 
-            System.out.println("payload: " + new Gson().toJson(targetMetadata));
-            System.out.println("Check****" + targetMetadata.getData().getMainContent().getMediaType());
-            if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
-                // Renders the Augmentation View with the 3D Book data Panel
-                renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
-            } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.HYPERLINK) {
-                String url = targetMetadata.getData().getMainContent().getUrl();
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                mActivity.startActivity(browserIntent);
-            } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.VIDEO) {
-                renderVideo(state, projectionMatrix, temp);
-            } else
-                System.out.println("in other ");
+                TrackableResult result = state.getTrackableResult(tIdx);
+                Trackable trackable = result.getTrackable();
+                // The assumption is that we always scan images / static content for AR.
+                // TODO: This might fail if we intend to go with video scanning, change accordingly
+                ImageTarget imageTarget = (ImageTarget) trackable;
+                TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+
+                System.out.println("payload: " + new Gson().toJson(targetMetadata));
+                System.out.println("Check****" + targetMetadata.getData().getMainContent().getMediaType());
+                if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
+                    // Renders the Augmentation View with the 3D Book data Panel
+                    renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
+                } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.HYPERLINK) {
+                    String url = targetMetadata.getData().getMainContent().getUrl();
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    mActivity.startActivity(browserIntent);
+                } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.VIDEO) {
+                    renderVideo(state, projectionMatrix, temp);
+                } else
+                    System.out.println("in other ");
+            }
+        }else {
+            mActivity.startFinderIfStopped();
         }
 
 

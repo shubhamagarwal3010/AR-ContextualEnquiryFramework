@@ -11,9 +11,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
 import com.thoughtworks.onboarding.BuildConfig;
@@ -74,6 +79,9 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     private String mMovieName;
     private int mInitErrorCode = 0;
     private boolean mExtendedTracking = false;
+
+    private TranslateAnimation scanAnimation;
+    private View scanLine;
 
     // Called when the activity first starts or the user navigates back
     // to an activity.
@@ -251,6 +259,94 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     }
 
     private void startLoadingAnimation() {
+        // Inflates the Overlay Layout to be displayed above the Camera View
+        LayoutInflater inflater = LayoutInflater.from(this);
+        mUILayout = (RelativeLayout) inflater.inflate(R.layout.camera_overlay_with_scanline,
+                null, false);
+
+        mUILayout.setVisibility(View.VISIBLE);
+        mUILayout.setBackgroundColor(Color.BLACK);
+
+        // By default
+        loadingDialogHandler.mLoadingDialogContainer = mUILayout
+                .findViewById(R.id.loading_indicator);
+        loadingDialogHandler.mLoadingDialogContainer
+                .setVisibility(View.VISIBLE);
+
+        scanLine = mUILayout.findViewById(R.id.scan_line);
+        scanLine.setVisibility(View.GONE);
+        scanAnimation = new TranslateAnimation(
+                TranslateAnimation.ABSOLUTE, 0f,
+                TranslateAnimation.ABSOLUTE, 0f,
+                TranslateAnimation.RELATIVE_TO_PARENT, 0f,
+                TranslateAnimation.RELATIVE_TO_PARENT, 1.0f);
+        scanAnimation.setDuration(4000);
+        scanAnimation.setRepeatCount(-1);
+        scanAnimation.setRepeatMode(Animation.REVERSE);
+        scanAnimation.setInterpolator(new LinearInterpolator());
+
+        addContentView(mUILayout, new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT));
+    }
+
+
+    private void scanlineStart() {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                scanLine.setVisibility(View.VISIBLE);
+                scanLine.setAnimation(scanAnimation);
+            }
+        });
+    }
+
+    private void scanlineStop() {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                scanLine.setVisibility(View.GONE);
+                scanLine.clearAnimation();
+            }
+        });
+    }
+
+
+    public void startFinderIfStopped() {
+        if (!mFinderStarted) {
+            mFinderStarted = true;
+
+            // Get the object tracker:
+            TrackerManager trackerManager = TrackerManager.getInstance();
+            ObjectTracker objectTracker = (ObjectTracker) trackerManager
+                    .getTracker(ObjectTracker.getClassType());
+
+            // Initialize target finder:
+            TargetFinder targetFinder = objectTracker.getTargetFinder();
+
+            targetFinder.clearTrackables();
+            targetFinder.startRecognition();
+            scanlineStart();
+        }
+    }
+
+    public void stopFinderIfStarted() {
+        if (mFinderStarted) {
+            mFinderStarted = false;
+
+            // Get the object tracker:
+            TrackerManager trackerManager = TrackerManager.getInstance();
+            ObjectTracker objectTracker = (ObjectTracker) trackerManager
+                    .getTracker(ObjectTracker.getClassType());
+
+            // Initialize target finder:
+            TargetFinder targetFinder = objectTracker.getTargetFinder();
+
+            targetFinder.stop();
+            scanlineStop();
+        }
+    }
+
+    private void starScanner() {
         mUILayout = (RelativeLayout) View.inflate(this, R.layout.camera_overlay,
                 null);
 
