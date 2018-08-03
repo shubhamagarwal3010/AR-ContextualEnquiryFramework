@@ -500,6 +500,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
                 if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
                     // Renders the Augmentation View with the 3D Book data Panel
                     renderAugmentation(trackableResult, projectionMatrix, targetMetadata);
+
                 } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.HYPERLINK) {
                     String url = targetMetadata.getData().getMainContent().getUrl();
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

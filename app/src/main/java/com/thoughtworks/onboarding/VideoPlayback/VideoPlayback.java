@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -20,16 +21,21 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.gson.Gson;
 import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.VuforiaApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.VuforiaApplication.VuforiaApplicationException;
 import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
+import com.thoughtworks.onboarding.cloud.MainContent;
+import com.thoughtworks.onboarding.cloud.TargetMetadata;
 import com.thoughtworks.onboarding.utils.DialogUtils;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
 import com.thoughtworks.onboarding.utils.Texture;
 import com.vuforia.CameraDevice;
+import com.vuforia.ImageTarget;
 import com.vuforia.ObjectTracker;
 import com.vuforia.State;
 import com.vuforia.TargetFinder;
@@ -112,6 +118,9 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         // Create the video player helper that handles the playback of the movie
         // for the targets:
         mVideoPlayerHelper = new VideoPlayerHelper(this);
+
+
+        new AnalyticTrackers(this).trackScanner();
     }
 
     // We want to load specific textures from the APK, which we will later
@@ -648,10 +657,30 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
                 if (result.getTrackingRating() > 0) {
                     Trackable trackable = finder.enableTracking(result);
 
+                    enableTracking(trackable);
+
                     if (mExtendedTracking)
                         trackable.startExtendedTracking();
                 }
             }
+        }
+    }
+
+
+
+    private void enableTracking(Trackable trackable)
+    {
+        ImageTarget imageTarget = (ImageTarget) trackable;
+        TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
+
+        System.out.println("payload: " + new Gson().toJson(targetMetadata));
+        System.out.println("Check****" + targetMetadata.getData().getMainContent().getMediaType());
+        if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
+            new AnalyticTrackers(this).trackImageTargets();
+        } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.HYPERLINK) {
+            new AnalyticTrackers(this).trackHyperLinkTargets();
+        } else if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.VIDEO) {
+            new AnalyticTrackers(this).trackVideoTargets();
         }
     }
 

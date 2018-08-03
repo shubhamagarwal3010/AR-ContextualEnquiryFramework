@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "720369909349",
+    "firebase_url": "https://tw-onboarding.firebaseio.com",
+    "project_id": "tw-onboarding",
+    "storage_bucket": "tw-onboarding.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720369909349:android:d4d40b13afa74929",
+        "android_client_info": {
+          "package_name": "com.thoughtworks.onboarding"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "720369909349-9le6nimb3okmffkcjvuagd6msvh6k1gi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thoughtworks.onboarding",
+            "certificate_hash": "03f8acd93a8efade3ca63bd4131b3d4f34491270"
+          }
+        },
+        {
+          "client_id": "720369909349-hu96gev60ivng1betr9api6hu1nchqv0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq2t4wRoeRhP21WKUNDuvMV1z8obXbmXE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "720369909349-hu96gev60ivng1betr9api6hu1nchqv0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
