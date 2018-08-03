@@ -1,5 +1,6 @@
 package com.thoughtworks.onboarding.VideoPlayback;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -9,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
@@ -40,6 +43,10 @@ import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
 
 import java.util.Vector;
+
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
 
 import static com.vuforia.TargetFinder.UPDATE_ERROR_NO_NETWORK_CONNECTION;
 import static com.vuforia.TargetFinder.UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
@@ -113,6 +120,8 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         // for the targets:
         mVideoPlayerHelper = new VideoPlayerHelper(this);
     }
+
+
 
     // We want to load specific textures from the APK, which we will later
     // use for rendering.

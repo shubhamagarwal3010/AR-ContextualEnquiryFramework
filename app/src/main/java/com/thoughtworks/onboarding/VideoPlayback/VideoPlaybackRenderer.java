@@ -111,6 +111,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
     private int texSampler2DHandle;
     private Image mImage = new Image();
 
+    UrlExtractor urlExtractor;
 
     public VideoPlaybackRenderer(VideoPlayback activity,
                                  UpdateTargetCallback session) {
@@ -589,6 +590,9 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
             TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
             String newUrl = targetMetadata.getData().getMainContent().getUrl();
+            urlExtractor = new UrlExtractor(newUrl, mActivity);
+            newUrl = urlExtractor.getVideoUrl();
+
 
             if (mVideoPlayerHelper != null && !newUrl.equals(url)) {
                 mActivity.setUrl(newUrl);
