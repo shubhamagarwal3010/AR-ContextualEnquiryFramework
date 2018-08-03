@@ -1,4 +1,4 @@
-package com.thoughtworks.onboarding.VideoPlayback;
+package com.thoughtworks.onboarding.AugmentedDisplay;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

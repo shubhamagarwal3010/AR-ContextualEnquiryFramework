@@ -1,4 +1,4 @@
-package com.thoughtworks.onboarding.VideoPlayback;
+package com.thoughtworks.onboarding.AugmentedDisplay;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,10 +19,9 @@ public class UrlExtractor {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public String getVideoUrl()
-    {
+    public String getVideoUrl() {
         final String[] downloadUrl = {""};
-        if(url.contains("youtube.com")) {
+        if (url.contains("youtube.com")) {
             new YouTubeExtractor(context) {
                 @Override
                 public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {

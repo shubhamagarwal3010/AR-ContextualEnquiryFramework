@@ -1,4 +1,4 @@
-package com.thoughtworks.onboarding.cloud;
+package com.thoughtworks.onboarding.model;
 
 public class Data {
 

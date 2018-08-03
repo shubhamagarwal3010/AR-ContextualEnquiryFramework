@@ -8,7 +8,7 @@ countries.
 ===============================================================================*/
 
 
-package com.thoughtworks.onboarding.VideoPlayback;
+package com.thoughtworks.onboarding.AugmentedDisplay;
 
 import android.app.Activity;
 import android.content.Intent;

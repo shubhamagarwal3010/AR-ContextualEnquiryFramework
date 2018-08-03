@@ -19,9 +19,9 @@
 -keep class com.vuforia.** { *; }
 -keep interface com.vuforia.** { *; }
 -dontwarn com.vuforia.ar.**
--keep class com.thoughtworks.onboarding.cloud.Data { *; }
--keep class com.thoughtworks.onboarding.cloud.MainContent { *; }
--keep class com.thoughtworks.onboarding.cloud.TargetMetadata { *; }
+-keep class model.Data { *; }
+-keep class model.MainContent { *; }
+-keep class model.TargetMetadata { *; }
 
 -keepclassmembers class * extends java.lang.Enum {
 <fields>;
@@ -29,4 +29,4 @@ public static **[] values();
 public static ** valueOf(java.lang.String);
 }
 
-#-keep public enum com.thoughworks.onboarding.cloud.MainContent$** { **[] $VALUES; public *; }
+#-keep public enum com.thoughworks.onboarding.model.MainContent$** { **[] $VALUES; public *; }
