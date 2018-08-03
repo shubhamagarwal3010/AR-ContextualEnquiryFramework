@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
-import com.thoughtworks.onboarding.VideoPlayback.VideoPlayback;
+import com.thoughtworks.onboarding.AugmentedDisplay.ArActivity;
 
 
 public class SplashScreenActivity extends AppCompatActivity {
@@ -22,7 +22,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private final Runnable waitCallback = new Runnable() {
         @Override
         public void run() {
-            Intent intent = new Intent(SplashScreenActivity.this, VideoPlayback.class);
+            Intent intent = new Intent(SplashScreenActivity.this, ArActivity.class);
             startActivity(intent);
             finish();
         }

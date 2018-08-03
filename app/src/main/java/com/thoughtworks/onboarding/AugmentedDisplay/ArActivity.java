@@ -1,4 +1,4 @@
-package com.thoughtworks.onboarding.VideoPlayback;
+package com.thoughtworks.onboarding.AugmentedDisplay;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,11 +25,13 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
+import com.thoughtworks.onboarding.VideoPlayback.AnalyticTrackers;
 import com.thoughtworks.onboarding.VuforiaApplication.ImageTrackerManager;
-import com.thoughtworks.onboarding.VuforiaApplication.VuforiaApplicationException;
 import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
-import com.thoughtworks.onboarding.cloud.MainContent;
-import com.thoughtworks.onboarding.cloud.TargetMetadata;
+
+import com.thoughtworks.onboarding.VuforiaApplication.VuforiaApplicationException;
+import com.thoughtworks.onboarding.model.MainContent;
+import com.thoughtworks.onboarding.model.TargetMetadata;
 import com.thoughtworks.onboarding.utils.DialogUtils;
 import com.thoughtworks.onboarding.utils.LoadingDialogHandler;
 import com.thoughtworks.onboarding.utils.SampleApplicationGLView;
@@ -51,9 +53,9 @@ import static com.vuforia.TargetFinder.UPDATE_ERROR_NO_NETWORK_CONNECTION;
 import static com.vuforia.TargetFinder.UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
 
 
-// The AR activity for the VideoPlayback sample.
-public class VideoPlayback extends Activity implements ImageTrackerManager {
-    private static final String LOGTAG = "VideoPlayback";
+// The AR activity for the ArActivity sample.
+public class ArActivity extends Activity implements ImageTrackerManager {
+    private static final String LOGTAG = "ArActivity";
     final private static int CMD_BACK = -1;
     final private static int CMD_FULLSCREEN_VIDEO = 1;
     // Movie for the Targets:
@@ -72,7 +74,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
     // Our OpenGL view:
     private SampleApplicationGLView mGlView;
     // Our renderer:
-    private VideoPlaybackRenderer mRenderer;
+    private ArRenderer mRenderer;
     // The textures we will use for rendering:
     private Vector<Texture> mTextures;
     private RelativeLayout mUILayout;
@@ -122,6 +124,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
 
         new AnalyticTrackers(this).trackScanner();
     }
+
 
     // We want to load specific textures from the APK, which we will later
     // use for rendering.
@@ -384,7 +387,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         mGlView = new SampleApplicationGLView(this);
         mGlView.init(translucent, depthSize, stencilSize);
 
-        mRenderer = new VideoPlaybackRenderer(this, updateTargetCallback);
+        mRenderer = new ArRenderer(this, updateTargetCallback);
         mRenderer.setTextures(mTextures);
 
         // The renderer comes has the OpenGL context, thus, loading to texture
@@ -471,7 +474,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
                 .getTracker(ObjectTracker.getClassType());
         objectTracker.start();
 
-        // Start cloud based recognition if we are in scanning mode:
+        // Start model based recognition if we are in scanning mode:
         TargetFinder targetFinder = objectTracker.getTargetFinder();
         targetFinder.startRecognition();
         mFinderStarted = true;
@@ -492,7 +495,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
         if (objectTracker != null) {
             objectTracker.stop();
 
-            // Stop cloud based recognition:
+            // Stop model based recognition:
             TargetFinder targetFinder = objectTracker.getTargetFinder();
             targetFinder.stop();
 
@@ -606,7 +609,7 @@ public class VideoPlayback extends Activity implements ImageTrackerManager {
 
                 // Generates an Alert Dialog to show the error message
                 AlertDialog.Builder builder = new AlertDialog.Builder(
-                        VideoPlayback.this);
+                        ArActivity.this);
                 builder
                         .setMessage(errorMessage)
                         .setTitle(getString(R.string.INIT_ERROR))

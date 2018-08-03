@@ -7,7 +7,7 @@ Vuforia is a trademark of PTC Inc., registered in the United States and other
 countries.
 ===============================================================================*/
 
-package com.thoughtworks.onboarding.VideoPlayback;
+package com.thoughtworks.onboarding.AugmentedDisplay;
 
 public class KeyFrameShaders {
 

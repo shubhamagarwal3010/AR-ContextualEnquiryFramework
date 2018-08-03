@@ -1,4 +1,4 @@
-package com.thoughtworks.onboarding.VideoPlayback;
+package com.thoughtworks.onboarding.AugmentedDisplay;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -12,11 +12,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
 import com.thoughtworks.onboarding.VuforiaApplication.VuforiaAppRenderer;
 import com.thoughtworks.onboarding.VuforiaApplication.VuforiaAppRendererControl;
-import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
-import com.thoughtworks.onboarding.cloud.MainContent;
-import com.thoughtworks.onboarding.cloud.TargetMetadata;
+import com.thoughtworks.onboarding.model.MainContent;
+import com.thoughtworks.onboarding.model.TargetMetadata;
 import com.thoughtworks.onboarding.utils.CubeShaders;
 import com.thoughtworks.onboarding.utils.Image;
 import com.thoughtworks.onboarding.utils.SampleMath;
@@ -42,14 +42,14 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_STATE;
-import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_TYPE.FULLSCREEN;
-import static com.thoughtworks.onboarding.VideoPlayback.VideoPlayerHelper.MEDIA_TYPE.ON_TEXTURE_FULLSCREEN;
+import static com.thoughtworks.onboarding.AugmentedDisplay.VideoPlayerHelper.MEDIA_STATE;
+import static com.thoughtworks.onboarding.AugmentedDisplay.VideoPlayerHelper.MEDIA_TYPE.FULLSCREEN;
+import static com.thoughtworks.onboarding.AugmentedDisplay.VideoPlayerHelper.MEDIA_TYPE.ON_TEXTURE_FULLSCREEN;
 
 
-// The renderer class for the VideoPlayback sample.
-public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaAppRendererControl {
-    private static final String LOGTAG = "VideoPlaybackRenderer";
+// The renderer class for the ArActivity sample.
+public class ArRenderer implements GLSurfaceView.Renderer, VuforiaAppRendererControl {
+    private static final String LOGTAG = "ArRenderer";
     private static final float OBJECT_SCALE_FLOAT = 0.01f;
     static int NUM_QUAD_INDEX = 6;
     UpdateTargetCallback updateTargetCallback;
@@ -65,7 +65,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
     double quadNormalsArray[] = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,};
     short quadIndicesArray[] = {0, 1, 2, 2, 3, 0};
     Buffer quadVertices, quadTexCoords, quadIndices, quadNormals;
-    VideoPlayback mActivity;
+    ArActivity mActivity;
     // Needed to calculate whether a screen tap is inside the target
     Matrix44F modelViewMatrix = null;
     boolean isTracking;
@@ -74,6 +74,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
     // keyframe
     float videoQuadAspectRatio;
     float keyframeQuadAspectRatio;
+    UrlExtractor urlExtractor;
     // Video Playback Rendering Specific
     private int videoPlaybackShaderID = 0;
     private int videoPlaybackVertexHandle = 0;
@@ -111,9 +112,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
     private int texSampler2DHandle;
     private Image mImage = new Image();
 
-
-    public VideoPlaybackRenderer(VideoPlayback activity,
-                                 UpdateTargetCallback session) {
+    public ArRenderer(ArActivity activity,
+                      UpdateTargetCallback session) {
 
         mActivity = activity;
         updateTargetCallback = session;
@@ -308,7 +308,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
 
     @SuppressLint("InlinedApi")
     void initRendering() {
-        Log.d(LOGTAG, "VideoPlayback VideoPlaybackRenderer initRendering");
+        Log.d(LOGTAG, "ArActivity ArRenderer initRendering");
 
         // Define clear color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, Vuforia.requiresAlpha() ? 0.0f
@@ -590,6 +590,9 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
             TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
             String newUrl = targetMetadata.getData().getMainContent().getUrl();
+            urlExtractor = new UrlExtractor(newUrl, mActivity);
+            newUrl = urlExtractor.getVideoUrl();
+
 
             if (mVideoPlayerHelper != null && !newUrl.equals(url)) {
                 mActivity.setUrl(newUrl);
@@ -837,7 +840,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, VuforiaApp
                 GLES20.glDisable(GLES20.GL_BLEND);
             }
 
-            SampleUtils.checkGLError("VideoPlayback renderFrame");
+            SampleUtils.checkGLError("ArActivity renderFrame");
         }
 
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
