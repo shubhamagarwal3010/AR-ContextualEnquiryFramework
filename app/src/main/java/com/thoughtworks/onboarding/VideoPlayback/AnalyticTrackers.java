@@ -50,4 +50,14 @@ public class AnalyticTrackers {
         mFirebaseAnalytics.logEvent(Constants.FIREBASE_EVENT_HYPERLINK_TARGET, bundle);
 
     }
+
+
+    public void trackTargetNames(String targetName)
+    {
+        targetName = targetName.replaceAll("-","_").replaceAll(" ", "_");
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.VALUE, targetName);
+        mFirebaseAnalytics.logEvent(targetName, bundle);
+
+    }
 }

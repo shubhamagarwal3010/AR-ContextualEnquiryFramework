@@ -674,8 +674,10 @@ public class ArActivity extends Activity implements ImageTrackerManager {
     private void enableTracking(Trackable trackable)
     {
         ImageTarget imageTarget = (ImageTarget) trackable;
+
         TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
+        new AnalyticTrackers(this).trackTargetNames(imageTarget.getName());
         System.out.println("payload: " + new Gson().toJson(targetMetadata));
         System.out.println("Check****" + targetMetadata.getData().getMainContent().getMediaType());
         if (targetMetadata.getData().getMainContent().getMediaType() == MainContent.MediaType.IMAGE) {
