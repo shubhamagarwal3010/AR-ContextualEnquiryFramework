@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -21,14 +20,12 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.thoughtworks.onboarding.BuildConfig;
 import com.thoughtworks.onboarding.R;
 import com.thoughtworks.onboarding.VideoPlayback.AnalyticTrackers;
 import com.thoughtworks.onboarding.VuforiaApplication.ImageTrackerManager;
 import com.thoughtworks.onboarding.VuforiaApplication.UpdateTargetCallback;
-
 import com.thoughtworks.onboarding.VuforiaApplication.VuforiaApplicationException;
 import com.thoughtworks.onboarding.model.MainContent;
 import com.thoughtworks.onboarding.model.TargetMetadata;
@@ -670,9 +667,7 @@ public class ArActivity extends Activity implements ImageTrackerManager {
     }
 
 
-
-    private void enableTracking(Trackable trackable)
-    {
+    private void enableTracking(Trackable trackable) {
         ImageTarget imageTarget = (ImageTarget) trackable;
 
         TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);

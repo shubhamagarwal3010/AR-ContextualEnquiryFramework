@@ -9,42 +9,36 @@ import com.thoughtworks.onboarding.utils.Constants;
 public class AnalyticTrackers {
 
 
+    Context ctx;
     private FirebaseAnalytics mFirebaseAnalytics;
 
-    Context ctx;
-
-    public AnalyticTrackers(Context ctx)
-    {
+    public AnalyticTrackers(Context ctx) {
         this.ctx = ctx;
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(ctx);
     }
 
-    public void trackScanner()
-    {
+    public void trackScanner() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Scanner page onboarding");
         mFirebaseAnalytics.logEvent(Constants.FIREBASE_EVENT_ONBOARD, bundle);
 
     }
 
-    public void trackImageTargets()
-    {
+    public void trackImageTargets() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Image Targets");
         mFirebaseAnalytics.logEvent(Constants.FIREBASE_EVENT_IMAGE_TARGET, bundle);
 
     }
 
-    public void trackVideoTargets()
-    {
+    public void trackVideoTargets() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Video Targets");
         mFirebaseAnalytics.logEvent(Constants.FIREBASE_EVENT_VIDEO_TARGET, bundle);
 
     }
 
-    public void trackHyperLinkTargets()
-    {
+    public void trackHyperLinkTargets() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.VALUE, "HyperLink Targets");
         mFirebaseAnalytics.logEvent(Constants.FIREBASE_EVENT_HYPERLINK_TARGET, bundle);
@@ -52,9 +46,8 @@ public class AnalyticTrackers {
     }
 
 
-    public void trackTargetNames(String targetName)
-    {
-        targetName = targetName.replaceAll("-","_").replaceAll(" ", "_");
+    public void trackTargetNames(String targetName) {
+        targetName = targetName.replaceAll("-", "_").replaceAll(" ", "_");
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.VALUE, targetName);
         mFirebaseAnalytics.logEvent(targetName, bundle);

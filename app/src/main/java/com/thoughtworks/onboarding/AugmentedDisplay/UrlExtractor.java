@@ -1,15 +1,7 @@
 package com.thoughtworks.onboarding.AugmentedDisplay;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.SparseArray;
-
-import com.thoughtworks.onboarding.SplashScreenActivity;
-
-import java.util.ArrayList;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
@@ -21,16 +13,13 @@ public abstract class UrlExtractor {
     private Context context;
 
 
-
-
-
     public void setVideoUrl(final String url, Context context) {
 
         this.context = context;
         if (url.contains("youtube.com")) {
 
             try {
-                 //new ExtractAsyncTask().execute(url);
+                //new ExtractAsyncTask().execute(url);
 
                 new YouTubeExtractor(context) {
                     @Override
@@ -39,29 +28,25 @@ public abstract class UrlExtractor {
 
                         if (ytFiles != null) {
                             int itag = 22;
-                            String downloadUrl= ytFiles.get(itag).getUrl();
+                            String downloadUrl = ytFiles.get(itag).getUrl();
 
                             onUrlExtracted(downloadUrl);
-                        }else
-                        {
+                        } else {
                             onUrlExtracted(url);
                         }
                     }
                 }.extract(url, true, true);
 
 
-
-            }catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-        }else {
+        } else {
             onUrlExtracted(url);
         }
 
     }
-
 
 
     public abstract void onUrlExtracted(String image);

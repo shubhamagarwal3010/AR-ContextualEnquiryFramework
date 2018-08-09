@@ -585,16 +585,16 @@ public class ArRenderer implements GLSurfaceView.Renderer, VuforiaAppRendererCon
             // Get the trackable:
             final TrackableResult trackableResult = state.getTrackableResult(tIdx);
 
-           final ImageTarget imageTarget = (ImageTarget) trackableResult
+            final ImageTarget imageTarget = (ImageTarget) trackableResult
                     .getTrackable();
             TargetMetadata targetMetadata = new Gson().fromJson(imageTarget.getMetaData(), TargetMetadata.class);
 
-           final String newUrl = targetMetadata.getData().getMainContent().getUrl();
+            final String newUrl = targetMetadata.getData().getMainContent().getUrl();
 
-          // final String newUrl = "https://www.youtube.com/watch?v=ua9gRiHDHok";
+            // final String newUrl = "https://www.youtube.com/watch?v=ua9gRiHDHok";
 
 
-            new  UrlExtractor(){
+            new UrlExtractor() {
 
                 @Override
                 public void onUrlExtracted(String image) {
@@ -624,15 +624,11 @@ public class ArRenderer implements GLSurfaceView.Renderer, VuforiaAppRendererCon
                     targetPositiveDimensions.setData(temp);
 
 
-
-
                     checkVideoStatus(projectionMatrix, trackableResult);
-
 
 
                 }
             }.setVideoUrl(newUrl, mActivity);
-
 
 
             SampleUtils.checkGLError("ArActivity renderFrame");
