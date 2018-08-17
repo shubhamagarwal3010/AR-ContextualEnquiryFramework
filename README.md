@@ -40,3 +40,22 @@ Done, you are all set to go!
 Open the project now with [Android Studio](https://developer.android.com/studio/index.html) and have fun!
 
 In case you launched the project in Android Studio before setting these env variables, it might not update them dynamically. So, restart the IDE and it should work fine.
+
+### Vuforia and App Release Keys
+* Vuforia keys are in the account created with Bharat Akkinepalli's creds (bharatk@thoughtworks.com)
+* The Android app's release keys are [here](https://drive.google.com/drive/u/0/folders/1mn1LQnLK7lptHjawDXSQ20_sMghKRSq6?ogsrc=32) and are shared with Bharat Akkinepalli (bharatk@thoughtworks.com), Prakash Vadrevu (prakashv@thoughtworks.com) and Shubham Aggarwal (shubhama@thoughtworks.com) 
+
+### Build Setup (CI / CD)
+
+Here are the experiments done to setup a build box to build this app:
+* We tried to setup the Gitlab associated CI in the repo. But, unfortunately the "CI" feature isn't enabled in our internal thoughtworks Gitlab (git.thoughtworks.net). This [ticket](https://help.thoughtworks.net/hc/en-us/requests/213272) captures the history of the attempts related to this.
+* We then moved onto hosting our own GOCD server in a Mac Mini (INadmin)
+* We tried to build the app in a Docker container in GOCD.
+  - But to pull the repo, we had to provide an SSH key / username/password pair.
+  - So, we had to create a Docker image with one of these inbuilt or we had to share these from the host machine.
+  - In both the cases, running a Docker container with attempts to share the volume (in GoCD Elastic Agent) failed.
+  - So, we tried to run the docker command in interactive mode (docker exec -it) in the Agent itself.
+  - Here, the "i" and "t" options were giving us troubles, which means that the GOCD server is having hard time spinning the Docker image in interactive mode.
+* As a final option we resorted to making the Mac Mini itself the Agent and installed all the required dependenices in it (Android, git, gradle, etc...)
+* SSH key of this machine belongs to Prakash Vadrevu's Gitlab account.
+* The pipeline is up and running and it gives an Release Build with Vuforia Release Keys embedded in the app.    
