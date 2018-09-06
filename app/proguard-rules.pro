@@ -19,9 +19,14 @@
 -keep class com.vuforia.** { *; }
 -keep interface com.vuforia.** { *; }
 -dontwarn com.vuforia.ar.**
--keep class model.Data { *; }
--keep class model.MainContent { *; }
--keep class model.TargetMetadata { *; }
+#-keep class model.MainContent { *; }
+#-keep class model.TargetMetadata { *; }
+-keep class com.thoughtworks.onboarding.model.** { *; }
+-dontwarn com.thoughtworks.onboarding.model.**
+
+-printmapping out.map
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
 -keepclassmembers class * extends java.lang.Enum {
 <fields>;
